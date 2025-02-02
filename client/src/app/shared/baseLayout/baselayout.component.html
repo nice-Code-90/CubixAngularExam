@@ -8,7 +8,7 @@
       <div class="d-flex justify-content-center w-100">
         @if (authService.isLoggedIn()) {
         <div class="d-flex align-items-center">
-          <div class="mr-3">Heló, {{ user?.username }}</div>
+          <div class="mr-3">Hello, {{ user?.username }}</div>
         </div>
         }
       </div>
@@ -16,7 +16,7 @@
         @if (authService.isLoggedIn()) {
         <div class="d-flex align-items-center">
           <button class="btn btn-outline-danger" (click)="logout()">
-            Kijelentkezés
+            Logout
           </button>
         </div>
         }
