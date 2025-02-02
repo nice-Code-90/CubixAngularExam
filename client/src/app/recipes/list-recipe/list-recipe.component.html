@@ -1,0 +1,61 @@
+<div class="container mt-4">
+  <div class="row">
+    @for (recipe of recipes(); track $index) {
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 test-center">
+        <img
+          [src]="recipe.picture"
+          class="card-img-top"
+          alt="{{ recipe.title }}"
+        />
+        <div class="card-body">
+          <h5 class="card-title text-center">{{ recipe.title }}</h5>
+          <p class="card-text text-center">{{ recipe.description }}</p>
+          <h6 class="text-center">Összetevők:</h6>
+          <ul class="list-unstyled">
+            @for(ingredient of recipe.ingredients; track $index){
+            <li class="text-center">
+              {{ ingredient }}
+            </li>
+            }
+          </ul>
+
+          <div class="d-flex justify-content-between align-items-center mt-3">
+            <span class="text-muted">Likes: {{ recipe.likes }}</span>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <div>
+              <button
+                class="btn btn-outline-primary btn-sm me-2"
+                (click)="likeRecipe(recipe)"
+              >
+                Like
+              </button>
+              <button
+                class="btn btn-outline-primary btn-sm"
+                (click)="dislikeRecipe(recipe)"
+              >
+                Dislike
+              </button>
+            </div>
+            <button
+              class="btn btn-outline-danger btn-sm"
+              (click)="confirmDelete(recipe)"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+</div>
+<!-- Use a template reference variable to access the ModalComponent -->
+<app-modal
+  #deleteModal
+  modalId="deleteModal"
+  title="Confirm Delete"
+  [message]="'Are you sure you want to delete this recipe?'"
+  (confirm)="deleteRecipe()"
+></app-modal>
