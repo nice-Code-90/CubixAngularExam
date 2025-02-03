@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { RegistrationComponent } from './auth/registration/registration.component';
 
 export const routes: Routes = [
   {
@@ -11,6 +12,10 @@ export const routes: Routes = [
     path: 'login',
     loadComponent: () =>
       import('./auth/login/login.component').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'registration',
+    component: RegistrationComponent,
   },
   {
     path: 'recipes',

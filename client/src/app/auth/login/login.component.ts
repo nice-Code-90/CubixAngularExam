@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { AuthService } from '../auth.service';
-import { RouteConfigLoadEnd, Router } from '@angular/router';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import * as bootstrap from 'bootstrap';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
