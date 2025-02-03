@@ -28,4 +28,3 @@ This project is a final exam for the Cubix Angular course. The application is a 
 - **Backend**: Node.js, Express, SQLite
 - **Authentication**: JWT (JSON Web Token)
 
-## Project Structure
