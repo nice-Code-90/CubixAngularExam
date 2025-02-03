@@ -53,4 +53,6 @@ export class RecipesService {
       headers: this.authService.getAuthHeaders(),
     });
   }
+
+  createRecipe(recipe: R);
 }

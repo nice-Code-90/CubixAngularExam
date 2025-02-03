@@ -25,7 +25,9 @@ module.exports = {
           if (err) {
             return res.status(500).json({ error: err.message });
           }
-          res.status(201).json(user);
+          const { password, ...userWithoutPassword } = user;
+
+          res.status(201).json(userWithoutPassword);
         });
       });
     });

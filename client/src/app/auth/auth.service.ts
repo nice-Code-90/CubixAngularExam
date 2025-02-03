@@ -61,7 +61,7 @@ export class AuthService {
       tap((response: any) => {
         if (response && response.token) {
           const user: User = { username, token: response.token };
-          localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(response));
+          localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
         }
       })
     );
