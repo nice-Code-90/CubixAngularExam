@@ -2,18 +2,25 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router, RouterLink } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormControl,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { ModalComponent } from '../../shared/modal/modal.component';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, ModalComponent, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  username?: string;
-  password?: string;
+  loginForm = new FormGroup({
+    username: new FormControl<string>('', [Validators.required]),
+    password: new FormControl<string>('', [Validators.required]),
+  });
   errorMessage: string = '';
 
   private readonly authService = inject(AuthService);
@@ -22,8 +29,9 @@ export class LoginComponent {
   @ViewChild('errorModal') errorModal!: ModalComponent;
 
   login(): void {
-    if (this.username && this.password) {
-      this.authService.login(this.username, this.password).subscribe({
+    if (this.loginForm.valid) {
+      const { username, password } = this.loginForm.value;
+      this.authService.login(username!, password!).subscribe({
         next: () => {
           this.router.navigate(['/recipes']);
         },

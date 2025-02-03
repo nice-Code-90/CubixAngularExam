@@ -8,15 +8,25 @@ const secretKey = process.env.SECRET_KEY;
 module.exports = {
   createUser: (req, res) => {
     const { username, password } = req.body;
-    userModel.createUser(username, password, (err, id) => {
+    userModel.getUserByUsername(username, (err, existingUser) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      userModel.getUserById(id, (err, user) => {
+      if (existingUser) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+
+      userModel.createUser(username, password, (err, id) => {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-        res.status(201).json(user);
+
+        userModel.getUserById(id, (err, user) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          res.status(201).json(user);
+        });
       });
     });
   },

@@ -1,19 +1,73 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { ModalComponent } from '../../shared/modal/modal.component';
+import { Component, inject, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormControl,
+} from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../auth.service';
+import { tap, catchError, finalize } from 'rxjs/operators';
+import { signal } from '@angular/core';
 
 @Component({
   selector: 'app-registration',
-  imports: [FormsModule, RouterLink, ModalComponent],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.scss',
 })
 export class RegistrationComponent {
-  username?: string;
-  password?: string;
-  passwordCheck?: string;
+  registrationForm = new FormGroup({
+    username: new FormControl<string>('', [Validators.required]),
+    password: new FormControl<string>('', [Validators.required]),
+    passwordCheck: new FormControl<string>('', [Validators.required]),
+  });
   errorMessage: string = '';
+  isLoading = signal(false);
 
-  public registration() {}
+  private readonly auth = inject(AuthService);
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+
+  public registration() {
+    if (this.registrationForm.invalid) {
+      this.errorMessage = 'Please fill out the form correctly';
+      this.clearErrorMessage();
+      return;
+    }
+
+    const { username, password, passwordCheck } = this.registrationForm.value;
+
+    if (password !== passwordCheck) {
+      this.errorMessage = 'Passwords do not match';
+      this.clearErrorMessage();
+      return;
+    }
+
+    this.isLoading.set(true);
+
+    this.auth
+      .register(username!, password!)
+      .pipe(
+        tap(() => {
+          this.router.navigate(['/']);
+        }),
+        catchError((err) => {
+          this.errorMessage = err.message;
+          this.clearErrorMessage();
+          return [];
+        }),
+        finalize(() => {
+          this.isLoading.set(false);
+        })
+      )
+      .subscribe();
+  }
+
+  private clearErrorMessage() {
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 3000);
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { User } from './models/user.model';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../environments/environment.development';
 
 @Injectable({
@@ -39,14 +39,17 @@ export class AuthService {
     });
   }
 
-  register(username: string, password: string): boolean {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    if (users.find((user: User) => user.username === username)) {
-      return false;
-    }
-    users.push({ username, password });
-    localStorage.setItem('users', JSON.stringify(users));
-    return true;
+  register(username: string, password: string): Observable<User> {
+    const user = { username, password };
+    return this.http.post<User>(this.baseUrl, user).pipe(
+      switchMap(() => this.login(username, password)),
+      tap(() => this.router.navigate(['/'])),
+      catchError((error) => {
+        return throwError(
+          () => new Error(error.error.message || 'Registration failed')
+        );
+      })
+    );
   }
 
   login(username: string, password: string): Observable<any> {
@@ -58,21 +61,14 @@ export class AuthService {
       tap((response: any) => {
         if (response && response.token) {
           const user: User = { username, token: response.token };
-          this.storeUser(user);
+          localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(response));
         }
       })
     );
   }
 
-  private storeUser(user: User) {
-    localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
-  }
-
-  private clearStoredUser() {
-    localStorage.removeItem(this.CURRENT_USER_KEY);
-  }
   logout() {
-    this.clearStoredUser();
+    localStorage.removeItem(this.CURRENT_USER_KEY);
     this._currentUser.set(undefined);
     this.router.navigate(['/login']);
   }
