@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const recipeModel = require("../models/recipeModel");
 
 module.exports = {
@@ -82,16 +84,46 @@ module.exports = {
   deleteRecipe: (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
-    recipeModel.deleteRecipe(id, userId, (err, changes) => {
+
+    recipeModel.getRecipeById(id, (err, recipe) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      if (changes === 0) {
-        return res
-          .status(404)
-          .json({ error: "Recipe not found or not authorized" });
+      if (!recipe) {
+        return res.status(404).json({ message: "Recipe not found" });
       }
-      res.json({ message: "Recipe deleted" });
+      if (recipe.userId !== userId) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to delete this recipe" });
+      }
+
+      if (recipe.picture) {
+        const picturePath = path.join(
+          __dirname,
+          "..",
+          "uploads",
+          path.basename(recipe.picture)
+        );
+        fs.unlink(picturePath, (err) => {
+          if (err) {
+            console.error("Failed to delete picture:", err);
+          } else {
+          }
+        });
+      }
+      recipeModel.deleteRecipe(id, userId, (err, changes) => {
+        if (err) {
+          console.error("Error deleting recipe:", err);
+          return res.status(500).json({ error: err.message });
+        }
+        if (changes === 0) {
+          return res
+            .status(404)
+            .json({ error: "Recipe not found or not authorized" });
+        }
+        res.json({ message: "Recipe deleted" });
+      });
     });
   },
 

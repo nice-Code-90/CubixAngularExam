@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment.development';
 import { map, Observable } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
+import { NewRecipe } from './models/newRecipe.model';
 
 @Injectable({
   providedIn: 'root',
@@ -20,10 +21,12 @@ export class RecipesService {
     return this.http.get<Recipe[]>(this.BASE_URL).pipe(
       map((recipes) =>
         recipes.map((recipe) => {
-          const picturePath = recipe.picture.startsWith('/uploads/')
+          const picturePath = recipe.picture?.startsWith('/uploads/')
             ? recipe.picture.substring(9)
             : recipe.picture;
-          const picture = `${this.IMAGE_BASE_URL}${picturePath}`;
+          const picture = picturePath
+            ? `${this.IMAGE_BASE_URL}${picturePath}`
+            : '';
           return {
             ...recipe,
             picture,
@@ -54,5 +57,7 @@ export class RecipesService {
     });
   }
 
-  createRecipe(recipe: R);
+  createRecipe(recipe: NewRecipe) {
+    return this.http.post<Recipe>(`${this.BASE_URL}`, recipe);
+  }
 }

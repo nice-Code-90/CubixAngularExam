@@ -1,9 +1,6 @@
-export interface Recipe {
-  id: string;
+export interface NewRecipe {
   title: string;
   description: string;
   picture: string;
-  userId: number;
-  likes: number;
   ingredients: string[];
 }
