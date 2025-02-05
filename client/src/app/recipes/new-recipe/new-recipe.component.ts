@@ -28,6 +28,7 @@ export class NewRecipeComponent {
   ingredients: string[] = [];
   pictureOfRecipe: File | null = null;
   isLoading = signal(false);
+  recipe: any;
 
   constructor(
     private recipesService: RecipesService,
@@ -38,8 +39,6 @@ export class NewRecipeComponent {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
       this.pictureOfRecipe = inputElement.files[0];
-      this.newRecipeForm.get('picture')?.setValue(this.pictureOfRecipe);
-      this.newRecipeForm.get('picture')?.updateValueAndValidity();
     }
   }
 
