@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, signal } from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -23,11 +23,16 @@ export class NewRecipeComponent {
     ingredients: new FormControl<string[]>([], [Validators.required]),
   });
 
-  ingredientControl: FormControl = new FormControl('');
+  certainIngredient: FormControl = new FormControl('', [Validators.required]);
   ingredients: string[] = [];
   selectedFile: File | null = null;
+  isLoading = signal(false);
 
-  constructor(private recipesService: RecipesService, private router: Router) {}
+  constructor(
+    private recipesService: RecipesService,
+    private router: Router,
+    private readonly destroyRef: DestroyRef
+  ) {}
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -36,10 +41,10 @@ export class NewRecipeComponent {
   }
 
   addIngredient() {
-    if (this.ingredientControl.value) {
-      this.ingredients.push(this.ingredientControl.value);
+    if (this.certainIngredient.value) {
+      this.ingredients.push(this.certainIngredient.value);
       this.newRecipeForm.get('ingredients')?.setValue(this.ingredients);
-      this.ingredientControl.reset();
+      this.certainIngredient.reset();
     }
   }
 
@@ -48,7 +53,7 @@ export class NewRecipeComponent {
     this.newRecipeForm.get('ingredients')?.setValue(this.ingredients);
   }
 
-  saveRecipe() {
+  save() {
     if (this.newRecipeForm.valid && this.selectedFile) {
       const formData = new FormData();
       const formValues: { [key: string]: any } = this.newRecipeForm.value;
