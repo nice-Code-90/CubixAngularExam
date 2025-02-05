@@ -14,9 +14,20 @@
                 id="username"
                 class="form-control"
                 formControlName="username"
-                required
+                [ngClass]="{
+                  'is-invalid':
+                    registrationForm.get('username')?.invalid &&
+                    registrationForm.get('username')?.touched,
+                  'is-valid':
+                    registrationForm.get('username')?.valid &&
+                    registrationForm.get('username')?.touched
+                }"
               />
+              @if(registrationForm.controls.username.errors?.['required']){
+              <div class="invalid-feedback">Username is required.</div>
+              }
             </div>
+
             <div class="form-group">
               <label for="password">Password</label>
               <input
@@ -24,18 +35,38 @@
                 id="password"
                 class="form-control"
                 formControlName="password"
-                required
+                [ngClass]="{
+                  'is-invalid':
+                    registrationForm.get('password')?.invalid &&
+                    registrationForm.get('password')?.touched,
+                  'is-valid':
+                    registrationForm.get('password')?.valid &&
+                    registrationForm.get('password')?.touched
+                }"
               />
+              @if(registrationForm.controls.password.errors?.['required']){
+              <div class="invalid-feedback">Password is required.</div>
+              }
             </div>
             <div class="form-group">
-              <label for="passwordCheck">Repeat Password</label>
+              <label for="passwordCheck">Confirm password</label>
               <input
                 type="password"
                 id="passwordCheck"
                 class="form-control"
                 formControlName="passwordCheck"
-                required
+                [ngClass]="{
+                  'is-invalid':
+                    registrationForm.get('passwordCheck')?.invalid &&
+                    registrationForm.get('passwordCheck')?.touched,
+                  'is-valid':
+                    registrationForm.get('passwordCheck')?.valid &&
+                    registrationForm.get('passwordCheck')?.touched
+                }"
               />
+              @if(registrationForm.controls.passwordCheck.errors?.['required']){
+              <div class="invalid-feedback">Confirm is required.</div>
+              }
             </div>
             @if(errorMessage){
             <div class="alert alert-danger mt-3">

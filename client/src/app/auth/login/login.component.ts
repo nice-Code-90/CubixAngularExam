@@ -41,7 +41,7 @@ export class LoginComponent {
         },
       });
     } else {
-      this.showErrorModal('Kérjük, adja meg a felhasználónevet és a jelszót');
+      this.showErrorModal('Username and password is required');
     }
   }
 

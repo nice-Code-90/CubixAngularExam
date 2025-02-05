@@ -10,10 +10,11 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../auth.service';
 import { tap, catchError, finalize } from 'rxjs/operators';
 import { signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-registration',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CommonModule],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.scss',
 })

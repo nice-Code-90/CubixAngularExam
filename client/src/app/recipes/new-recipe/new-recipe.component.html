@@ -8,7 +8,7 @@
         <div class="card-body">
           <form [formGroup]="newRecipeForm" (ngSubmit)="save()">
             <div class="form-group">
-              <label for="title">Title</label>
+              <label for="title">Name</label>
               <input
                 type="text"
                 id="title"
@@ -23,8 +23,7 @@
                     newRecipeForm.get('title')?.touched
                 }"
               />
-              @if(newRecipeForm.get('title')?.invalid &&
-              newRecipeForm.get('title')?.touched){
+              @if(newRecipeForm.controls.title.errors?.['required']){
               <div class="invalid-feedback">Title is required.</div>
               }
             </div>
@@ -43,8 +42,7 @@
                     newRecipeForm.get('description')?.touched
                 }"
               ></textarea>
-              @if(newRecipeForm.get('description')?.invalid &&
-              newRecipeForm.get('description')?.touched){
+              @if(newRecipeForm.controls.title.errors?.['required']){
               <div class="invalid-feedback">Description is required.</div>
               }
             </div>
@@ -54,6 +52,7 @@
                 type="file"
                 id="picture"
                 class="form-control"
+                formControlName="picture"
                 (change)="onFileSelected($event)"
                 [ngClass]="{
                   'is-invalid':
@@ -63,7 +62,7 @@
                 }"
                 required
               />
-              @if(!selectedFile && newRecipeForm.get('picture')?.touched){
+              @if(newRecipeForm.controls.picture.errors?.['required']){
               <div class="invalid-feedback">Picture is required.</div>
               }
             </div>
@@ -72,7 +71,8 @@
               <div class="input-group mb-3">
                 <input
                   type="text"
-                  id="ingredient"
+                  id="ingredients"
+                  formControlName="ingredients"
                   class="form-control"
                   [formControl]="certainIngredient"
                   [ngClass]="{
@@ -82,7 +82,9 @@
                       certainIngredient.valid && certainIngredient.touched
                   }"
                 />
-
+                @if(newRecipeForm.controls.ingredients.errors?.['required']){
+                <div class="invalid-feedback">Picture is required.</div>
+                }
                 <button
                   type="button"
                   class="btn btn-outline-secondary"
