@@ -37,6 +37,8 @@ export class NewRecipeComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      this.newRecipeForm.get('picture')?.setValue(this.selectedFile);
+      this.newRecipeForm.get('picture')?.updateValueAndValidity();
     }
   }
 
@@ -70,8 +72,6 @@ export class NewRecipeComponent {
           }
         }
       }
-
-      formData.append('picture', this.selectedFile);
 
       this.recipesService.createRecipe(formData).subscribe(
         () => {
