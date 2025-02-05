@@ -17,21 +17,19 @@ export class RecipesService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
 
+  getRecipeById(id: string) {
+    return this.http.get<Recipe>(`${this.BASE_URL}/${id}`);
+  }
+
   listRecipes(): Observable<Recipe[]> {
     return this.http.get<Recipe[]>(this.BASE_URL).pipe(
       map((recipes) =>
-        recipes.map((recipe) => {
-          const picturePath = recipe.picture?.startsWith('/uploads/')
-            ? recipe.picture.substring(9)
-            : recipe.picture;
-          const picture = picturePath
-            ? `${this.IMAGE_BASE_URL}${picturePath}`
-            : '';
-          return {
-            ...recipe,
-            picture,
-          };
-        })
+        recipes.map((recipe) => ({
+          ...recipe,
+          picture: recipe.picture
+            ? `${this.IMAGE_BASE_URL}${recipe.picture.replace('/uploads/', '')}`
+            : '',
+        }))
       )
     );
   }
@@ -57,7 +55,9 @@ export class RecipesService {
     });
   }
 
-  createRecipe(recipe: NewRecipe) {
-    return this.http.post<Recipe>(`${this.BASE_URL}`, recipe);
+  createRecipe(recipe: FormData): Observable<Recipe> {
+    const headers = this.authService.getAuthHeaders();
+
+    return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });
   }
 }
