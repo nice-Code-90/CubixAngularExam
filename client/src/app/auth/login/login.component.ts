@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, ViewChild } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -25,10 +25,13 @@ export class LoginComponent {
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  isLoading = signal(false);
 
   @ViewChild('errorModal') errorModal!: ModalComponent;
 
   login(): void {
+    this.isLoading.set(true);
+
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
       this.authService.login(username!, password!).subscribe({

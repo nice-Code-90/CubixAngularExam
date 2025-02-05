@@ -1,6 +1,6 @@
 export interface NewRecipe {
   title: string;
   description: string;
-  picture: string;
+  picture: File | null;
   ingredients: string[];
 }

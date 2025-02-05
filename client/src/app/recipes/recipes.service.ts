@@ -55,7 +55,7 @@ export class RecipesService {
     });
   }
 
-  createRecipe(recipe: FormData): Observable<Recipe> {
+  createRecipe(recipe: FormData): Observable<any> {
     const headers = this.authService.getAuthHeaders();
 
     return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });

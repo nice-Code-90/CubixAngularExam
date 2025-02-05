@@ -8,6 +8,7 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { RecipesService } from '../recipes.service';
 import { CommonModule } from '@angular/common';
+import { NewRecipe } from '../models/newRecipe.model';
 
 @Component({
   selector: 'app-new-recipe',
@@ -25,7 +26,7 @@ export class NewRecipeComponent {
 
   certainIngredient: FormControl = new FormControl('', [Validators.required]);
   ingredients: string[] = [];
-  selectedFile: File | null = null;
+  pictureOfRecipe: File | null = null;
   isLoading = signal(false);
 
   constructor(
@@ -34,10 +35,10 @@ export class NewRecipeComponent {
     private readonly destroyRef: DestroyRef
   ) {}
   onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-      this.newRecipeForm.get('picture')?.setValue(this.selectedFile);
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files && inputElement.files.length > 0) {
+      this.pictureOfRecipe = inputElement.files[0];
+      this.newRecipeForm.get('picture')?.setValue(this.pictureOfRecipe);
       this.newRecipeForm.get('picture')?.updateValueAndValidity();
     }
   }
@@ -56,33 +57,29 @@ export class NewRecipeComponent {
   }
 
   save() {
-    if (this.newRecipeForm.valid && this.selectedFile) {
-      const formData = new FormData();
-      const formValues: { [key: string]: any } = this.newRecipeForm.value;
+    this.isLoading.set(true);
+    const newRecipe: NewRecipe = {
+      title: this.newRecipeForm.get('title')?.value!,
+      description: this.newRecipeForm.get('description')?.value!,
+      picture: this.pictureOfRecipe,
+      ingredients: this.ingredients,
+    };
 
-      for (const key in formValues) {
-        if (formValues.hasOwnProperty(key)) {
-          const value = formValues[key];
-          if (key === 'ingredients') {
-            formData.append(key, JSON.stringify(this.ingredients));
-          } else if (value instanceof File) {
-            formData.append(key, value);
-          } else {
-            formData.append(key, value as string);
-          }
-        }
-      }
-
-      this.recipesService.createRecipe(formData).subscribe(
-        () => {
-          this.router.navigate(['/recipes']);
-        },
-        (error) => {
-          console.error('Error saving recipe:', error);
-        }
-      );
-    } else {
-      console.error('Form is invalid or file is not selected');
+    const formData = new FormData();
+    formData.append('title', newRecipe.title);
+    formData.append('description', newRecipe.description);
+    if (newRecipe.picture) {
+      formData.append('picture', newRecipe.picture);
     }
+    formData.append('ingredients', JSON.stringify(newRecipe.ingredients));
+
+    this.recipesService.createRecipe(formData).subscribe(
+      () => {
+        this.router.navigate(['/recipes']);
+      },
+      (error) => {
+        console.error('Error saving recipe:', error);
+      }
+    );
   }
 }
