@@ -10,6 +10,8 @@ import { RecipesService } from '../recipes.service';
 import { CommonModule } from '@angular/common';
 import { NewRecipe } from '../models/newRecipe.model';
 import { Recipe } from '../models/recipe.model';
+import { catchError, finalize, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-new-recipe',
@@ -30,7 +32,6 @@ export class NewRecipeComponent implements OnInit {
   ingredients: string[] = [];
   pictureOfRecipe: File | null = null;
   isLoading = signal(false);
-  //recipe: any;
 
   constructor(
     private recipesService: RecipesService,
@@ -42,18 +43,27 @@ export class NewRecipeComponent implements OnInit {
   }
   ngOnInit(): void {
     if (this.recipe) {
-      this.newRecipe.setValue({
+      this.newRecipe.patchValue({
         title: this.recipe.title,
         description: this.recipe.description || '',
-        picture: this.recipe.picture || null,
+        //picture: this.recipe.picture || null,
         ingredients: this.recipe.ingredients || [],
       });
     }
+    this.loadIngredients();
   }
   onFileSelected(event: Event) {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement.files && inputElement.files.length > 0) {
       this.pictureOfRecipe = inputElement.files[0];
+    }
+  }
+
+  //for edit
+  loadIngredients() {
+    if (this.recipe?.ingredients) {
+      this.ingredients = [...this.recipe.ingredients];
+      this.newRecipe.get('ingredients')?.setValue(this.ingredients);
     }
   }
 
@@ -72,12 +82,6 @@ export class NewRecipeComponent implements OnInit {
 
   save() {
     this.isLoading.set(true);
-    // const newRecipe: NewRecipe = {
-    //   title: this.newRecipeForm.get('title')?.value!,
-    //   description: this.newRecipeForm.get('description')?.value!,
-    //   picture: this.pictureOfRecipe,
-    //   ingredients: this.ingredients,
-    // };
 
     const formData = new FormData();
     formData.append('title', this.newRecipe.value.title!);
@@ -88,13 +92,20 @@ export class NewRecipeComponent implements OnInit {
     }
     formData.append('ingredients', JSON.stringify(this.ingredients));
 
-    this.recipesService.createRecipe(formData).subscribe(
-      () => {
-        this.router.navigate(['/recipes']);
-      },
-      (error) => {
-        console.error('Error saving recipe:', error);
-      }
-    );
+    const operation = this.recipe
+      ? this.recipesService.editRecipe(this.recipe.id, formData)
+      : this.recipesService.createRecipe(formData);
+
+    operation
+      .pipe(
+        tap(() => this.router.navigate(['/recipes'])),
+        catchError((error) => {
+          console.error('Error saving recipe:', error);
+          throw error;
+        }),
+        finalize(() => this.isLoading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
   }
 }

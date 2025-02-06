@@ -53,8 +53,7 @@ module.exports = {
   },
 
   updateRecipe: (req, res) => {
-    const { id } = req.params;
-    const { title, description, picture, ingredients, userId } = req.body;
+    const { id, title, description, picture, ingredients, userId } = req;
     recipeModel.updateRecipe(
       id,
       title,

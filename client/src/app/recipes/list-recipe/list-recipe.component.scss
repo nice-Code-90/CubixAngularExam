@@ -1,0 +1,18 @@
+.img-container {
+  height: 300px;
+}
+@media (max-width: 1200px) {
+  .img-container {
+    height: 300px;
+  }
+}
+@media (max-width: 991px) {
+  .img-container {
+    height: 200px;
+  }
+}
+@media (max-width: 768px) {
+  .img-container {
+    height: 350px;
+  }
+}

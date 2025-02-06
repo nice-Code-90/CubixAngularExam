@@ -7,5 +7,33 @@
   padding-right: 30px;
 }
 .navbar-collapse {
-  margin-right: 3em;
+  margin-right: 2em;
+}
+.new-btn {
+  width: 6.7em;
+}
+.btn-container {
+  width: 300px;
+  justify-content: space-around;
+}
+@media (max-width: 992px) {
+  .navbar-right {
+    flex-basis: 0%;
+  }
+}
+@media (max-width: 580px) {
+  .welc-message-container {
+    width: 101px !important;
+  }
+  .btn-container {
+    width: 200px;
+  }
+  .hellomess-maincont {
+    width: 101px !important;
+  }
+  .navbar-maincont {
+  }
+  .navbar-right {
+    margin: 0 20px;
+  }
 }
