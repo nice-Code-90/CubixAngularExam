@@ -6,7 +6,7 @@
           <h3 class="text-center">New Recipe</h3>
         </div>
         <div class="card-body">
-          <form [formGroup]="newRecipeForm" (ngSubmit)="save()">
+          <form [formGroup]="newRecipe" (ngSubmit)="save()">
             <div class="form-group">
               <label for="title">Name</label>
               <input
@@ -16,15 +16,15 @@
                 formControlName="title"
                 [ngClass]="{
                   'is-invalid':
-                    newRecipeForm.get('title')?.invalid &&
-                    newRecipeForm.get('title')?.touched,
+                    newRecipe.get('title')?.invalid &&
+                    newRecipe.get('title')?.touched,
                   'is-valid':
-                    newRecipeForm.get('title')?.valid &&
-                    newRecipeForm.get('title')?.touched
+                    newRecipe.get('title')?.valid &&
+                    newRecipe.get('title')?.touched
                 }"
               />
-              @if(newRecipeForm.controls.title.errors?.['required']){
-              <div class="invalid-feedback">Title is required.</div>
+              @if(newRecipe.controls.title.errors?.['required']){
+              <div class="invalid-feedback">Name is required.</div>
               }
             </div>
             <div class="form-group">
@@ -35,14 +35,14 @@
                 formControlName="description"
                 [ngClass]="{
                   'is-invalid':
-                    newRecipeForm.get('description')?.invalid &&
-                    newRecipeForm.get('description')?.touched,
+                    newRecipe.get('description')?.invalid &&
+                    newRecipe.get('description')?.touched,
                   'is-valid':
-                    newRecipeForm.get('description')?.valid &&
-                    newRecipeForm.get('description')?.touched
+                    newRecipe.get('description')?.valid &&
+                    newRecipe.get('description')?.touched
                 }"
               ></textarea>
-              @if(newRecipeForm.controls.title.errors?.['required']){
+              @if(newRecipe.controls.title.errors?.['required']){
               <div class="invalid-feedback">Description is required.</div>
               }
             </div>
@@ -52,16 +52,17 @@
                 type="file"
                 id="picture"
                 class="form-control"
+                formControlName="picture"
                 (change)="onFileSelected($event)"
                 [ngClass]="{
                   'is-invalid':
-                    !pictureOfRecipe && newRecipeForm.get('picture')?.touched,
+                    !pictureOfRecipe && newRecipe.get('picture')?.touched,
                   'is-valid':
-                    pictureOfRecipe && newRecipeForm.get('picture')?.touched
+                    pictureOfRecipe && newRecipe.get('picture')?.touched
                 }"
                 required
               />
-              @if(newRecipeForm.controls.picture.errors?.['required']){
+              @if(newRecipe.controls.picture.errors?.['required']){
               <div class="invalid-feedback">Picture is required.</div>
               }
             </div>
@@ -81,7 +82,7 @@
                       certainIngredient.valid && certainIngredient.touched
                   }"
                 />
-                @if(newRecipeForm.controls.ingredients.errors?.['required']){
+                @if(newRecipe.controls.ingredients.errors?.['required']){
                 <div class="invalid-feedback">Picture is required.</div>
                 }
                 <button
@@ -112,7 +113,7 @@
               <button
                 type="submit"
                 class="btn btn-primary me-2"
-                [disabled]="newRecipeForm.invalid || isLoading()"
+                [disabled]="newRecipe.invalid || isLoading()"
               >
                 Save
               </button>

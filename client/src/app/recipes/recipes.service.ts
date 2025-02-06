@@ -49,13 +49,19 @@ export class RecipesService {
     );
   }
 
-  deleteRecipe(recipe: Recipe): Observable<{ id: string }> {
+  deleteRecipe(recipe: Recipe) {
     return this.http.delete<{ id: string }>(`${this.BASE_URL}/${recipe.id}`, {
       headers: this.authService.getAuthHeaders(),
     });
   }
 
-  createRecipe(recipe: FormData): Observable<any> {
+  createRecipe(recipe: FormData) {
+    const headers = this.authService.getAuthHeaders();
+
+    return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });
+  }
+
+  editRecipe(recipe: FormData) {
     const headers = this.authService.getAuthHeaders();
 
     return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });
