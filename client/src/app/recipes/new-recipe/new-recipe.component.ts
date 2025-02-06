@@ -1,4 +1,4 @@
-import { Component, DestroyRef, signal } from '@angular/core';
+import { Component, DestroyRef, Input, OnInit, signal } from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -9,6 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import { RecipesService } from '../recipes.service';
 import { CommonModule } from '@angular/common';
 import { NewRecipe } from '../models/newRecipe.model';
+import { Recipe } from '../models/recipe.model';
 
 @Component({
   selector: 'app-new-recipe',
@@ -16,7 +17,8 @@ import { NewRecipe } from '../models/newRecipe.model';
   templateUrl: './new-recipe.component.html',
   styleUrl: './new-recipe.component.scss',
 })
-export class NewRecipeComponent {
+export class NewRecipeComponent implements OnInit {
+  @Input({ required: false }) recipe?: Recipe;
   newRecipe = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),
     description: new FormControl<string>('', [Validators.required]),
@@ -28,7 +30,7 @@ export class NewRecipeComponent {
   ingredients: string[] = [];
   pictureOfRecipe: File | null = null;
   isLoading = signal(false);
-  recipe: any;
+  //recipe: any;
 
   constructor(
     private recipesService: RecipesService,
@@ -37,6 +39,16 @@ export class NewRecipeComponent {
   ) {
     // this.newRecipe.valueChanges.subscribe()
     //For handle any tiny change in form values
+  }
+  ngOnInit(): void {
+    if (this.recipe) {
+      this.newRecipe.setValue({
+        title: this.recipe.title,
+        description: this.recipe.description || '',
+        picture: this.recipe.picture || null,
+        ingredients: this.recipe.ingredients || [],
+      });
+    }
   }
   onFileSelected(event: Event) {
     const inputElement = event.target as HTMLInputElement;
