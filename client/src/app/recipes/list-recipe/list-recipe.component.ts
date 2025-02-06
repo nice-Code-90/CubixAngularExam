@@ -14,10 +14,11 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AfterViewInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-list-recipe',
-  imports: [CommonModule, ModalComponent],
+  imports: [CommonModule, ModalComponent, RouterLink],
   templateUrl: './list-recipe.component.html',
   styleUrl: './list-recipe.component.scss',
 })

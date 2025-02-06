@@ -61,9 +61,9 @@ export class RecipesService {
     return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });
   }
 
-  editRecipe(recipe: FormData) {
+  editRecipe(id: string, recipe: FormData) {
     const headers = this.authService.getAuthHeaders();
 
-    return this.http.post<Recipe>(this.BASE_URL, recipe, { headers });
+    return this.http.put<Recipe>(`${this.BASE_URL}/${id}`, recipe, { headers });
   }
 }

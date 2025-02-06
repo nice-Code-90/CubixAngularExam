@@ -72,7 +72,7 @@ export class NewRecipeComponent {
     formData.append('description', this.newRecipe.value.description!);
 
     if (this.pictureOfRecipe) {
-      formData.append('picture', this.newRecipe.value.picture!);
+      formData.append('picture', this.pictureOfRecipe);
     }
     formData.append('ingredients', JSON.stringify(this.ingredients));
 

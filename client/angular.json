@@ -69,10 +69,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "covidTracker:build:production"
+              "buildTarget": "recipe:build:production"
             },
             "development": {
-              "buildTarget": "covidTracker:build:development"
+              "buildTarget": "recipe:build:development"
             }
           },
           "defaultConfiguration": "development"

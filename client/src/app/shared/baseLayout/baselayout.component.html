@@ -15,6 +15,12 @@
       <div class="d-flex justify-content-end">
         @if (authService.isLoggedIn()) {
         <div class="d-flex align-items-center">
+          <button
+            class="btn btn-outline-primary"
+            [routerLink]="['/recipes/new']"
+          >
+            New recipe
+          </button>
           <button class="btn btn-outline-danger" (click)="logout()">
             Logout
           </button>

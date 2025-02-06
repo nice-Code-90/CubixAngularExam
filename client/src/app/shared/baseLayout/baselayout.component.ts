@@ -1,9 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { User } from '../../auth/models/user.model';
 import { AuthService } from '../../auth/auth.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-baselayout',
+  imports: [RouterLink],
   templateUrl: './baselayout.component.html',
   styleUrl: './baselayout.component.scss',
 })
