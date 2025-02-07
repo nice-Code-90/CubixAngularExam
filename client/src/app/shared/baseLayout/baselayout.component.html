@@ -1,33 +1,59 @@
-<div class="w-100">
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">
-      <img src="logo.png" class="logo" alt="Logo" />
-      Food find
-    </a>
-    <div class="navbar-collapse collapse w-60 d-flex justify-content-between">
-      <div class="d-flex justify-content-center w-100">
-        @if (authService.isLoggedIn()) {
-        <div class="d-flex align-items-center">
-          <div class="mr-3">Hello, {{ user?.username }}</div>
+<div class="main-container">
+  <div class="w-100">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <img src="logo.jpg" class="logo" alt="Logo" />
+        Food find
+      </a>
+      <div class="navbar-collapse collapse w-60 d-flex justify-content-between">
+        <div class="d-flex justify-content-center w-100">
+          @if (authService.isLoggedIn()) {
+          <div class="d-flex align-items-center">
+            <div class="mr-3">Hello, {{ user?.username }}</div>
+          </div>
+          }
         </div>
-        }
-      </div>
-      <div class="d-flex justify-content-end">
-        @if (authService.isLoggedIn()) {
-        <div class="d-flex align-items-center btn-container">
-          <button
-            class="btn btn-outline-primary"
-            [routerLink]="['/recipes/new']"
-          >
-            New recipe
-          </button>
-          <button class="btn btn-outline-danger" (click)="logout()">
-            Logout
-          </button>
+        <div class="d-flex justify-content-end">
+          @if (authService.isLoggedIn()) {
+          <div class="d-flex align-items-center btn-container">
+            <button
+              class="btn btn-outline-primary"
+              [routerLink]="['/recipes/new']"
+            >
+              New recipe
+            </button>
+            <button class="btn btn-outline-danger" (click)="logout()">
+              Logout
+            </button>
+          </div>
+          }
         </div>
-        }
       </div>
-    </div>
-  </nav>
+    </nav>
+  </div>
+  <div>
+    <ng-content></ng-content>
+
+    <footer class="footer bg-dark text-white mt-auto py-1">
+      <div class="container py-0">
+        <div class="row">
+          <div class="col-md-6">
+            <h5>About Us</h5>
+            <p>
+              We are a team of passionate cooks and food enthusiasts sharing our
+              favorite recipes with the world.
+            </p>
+          </div>
+          <div class="col-md-6 text-md-end">
+            <h5>Follow Us</h5>
+          </div>
+        </div>
+        <div class="row mt-4">
+          <div class="col text-center">
+            <p>&copy; 2025 Healthy Food. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
 </div>
-<ng-content></ng-content>

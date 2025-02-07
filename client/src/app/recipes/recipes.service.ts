@@ -62,7 +62,7 @@ export class RecipesService {
   createRecipe(recipe: FormData) {
     const headers = this.authService.getAuthHeaders();
 
-    return this.http.post<Recipe>(this.URL, recipe, { headers });
+    return this.http.post<Recipe>(`${this.URL}/recipes`, recipe, { headers });
   }
 
   editRecipe(id: string, recipe: FormData) {

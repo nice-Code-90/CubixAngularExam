@@ -48,20 +48,44 @@
             </div>
             <div class="form-group">
               <label for="picture">Picture</label>
-              <input
-                type="file"
-                id="picture"
-                class="form-control"
-                formControlName="picture"
-                (change)="onFileSelected($event)"
-                [ngClass]="{
-                  'is-invalid':
-                    !pictureOfRecipe && newRecipe.get('picture')?.touched,
-                  'is-valid':
-                    pictureOfRecipe && newRecipe.get('picture')?.touched
-                }"
-                required
-              />
+              <div
+                class="drop-zone"
+                (paste)="onPaste($event)"
+                (dragover)="$event.preventDefault()"
+                (drop)="onDrop($event)"
+              >
+                <input
+                  #fileInput
+                  type="file"
+                  id="picture"
+                  class="form-control"
+                  accept="image/*"
+                  (change)="onFileSelected($event)"
+                  [ngClass]="{
+                    'is-invalid':
+                      !pictureOfRecipe && newRecipe.get('picture')?.touched,
+                    'is-valid':
+                      pictureOfRecipe && newRecipe.get('picture')?.touched
+                  }"
+                  required
+                />
+                <p>
+                  Drag & drop an image here, paste from clipboard, or click to
+                  select
+                </p>
+                @if(pictureOfRecipe){
+                <div class="mt-2">
+                  <img
+                    [src]="previewUrl"
+                    alt="Selected image"
+                    style="max-width: 200px"
+                  />
+                  <div class="mt-2">
+                    Selected file: {{ pictureOfRecipe.name }}
+                  </div>
+                </div>
+                }
+              </div>
               @if(newRecipe.controls.picture.errors?.['required']){
               <div class="invalid-feedback">Picture is required.</div>
               }
