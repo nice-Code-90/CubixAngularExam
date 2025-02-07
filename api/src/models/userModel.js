@@ -37,4 +37,11 @@ module.exports = {
       callback(err, row);
     });
   },
+  deleteUser: (id, callback) => {
+    const stmt = db.prepare("DELETE FROM users WHERE id = ?");
+    stmt.run(id, function (err) {
+      callback(err, this.changes);
+    });
+    stmt.finalize();
+  },
 };

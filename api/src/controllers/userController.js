@@ -67,4 +67,34 @@ module.exports = {
       res.json(user);
     });
   },
+
+  deleteUser: (req, res) => {
+    const { id } = req.params;
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "No token provided" });
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      if (decoded.id !== parseInt(id, 10)) {
+        return res
+          .status(403)
+          .json({ error: "You can only delete your own account" });
+      }
+
+      userModel.deleteUser(id, (err, changes) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        if (changes === 0) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({ message: "User deleted successfully" });
+      });
+    });
+  },
 };

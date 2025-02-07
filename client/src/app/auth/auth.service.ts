@@ -66,6 +66,15 @@ export class AuthService {
       })
     );
   }
+  getToken(): string | null {
+    const currentUser = localStorage.getItem(this.CURRENT_USER_KEY);
+    let token = '';
+    if (currentUser) {
+      const user = JSON.parse(currentUser);
+      token = user.token;
+    }
+    return token;
+  }
 
   logout() {
     localStorage.removeItem(this.CURRENT_USER_KEY);

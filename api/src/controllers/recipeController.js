@@ -53,31 +53,58 @@ module.exports = {
   },
 
   updateRecipe: (req, res) => {
-    const { id, title, description, picture, ingredients, userId } = req;
-    recipeModel.updateRecipe(
-      id,
-      title,
-      description,
-      picture,
-      ingredients,
-      userId,
-      (err, changes) => {
+    const { id, title, description, picture, ingredients } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ error: "No token provided" });
+    }
+
+    jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      const userId = decoded.id;
+
+      recipeModel.getRecipeById(id, (err, recipe) => {
         if (err) {
           return res.status(500).json({ error: err.message });
         }
-        if (changes === 0) {
-          return res
-            .status(404)
-            .json({ error: "Recipe not found or not authorized" });
+        if (!recipe) {
+          return res.status(404).json({ error: "Recipe not found" });
         }
-        recipeModel.getRecipeById(id, (err, updatedRecipe) => {
-          if (err) {
-            return res.status(500).json({ error: err.message });
+        if (recipe.userId !== userId) {
+          return res
+            .status(403)
+            .json({ error: "Not authorized to update this recipe" });
+        }
+
+        recipeModel.updateRecipe(
+          id,
+          title,
+          description,
+          picture,
+          ingredients,
+          userId,
+          (err, changes) => {
+            if (err) {
+              return res.status(500).json({ error: err.message });
+            }
+            if (changes === 0) {
+              return res
+                .status(404)
+                .json({ error: "Recipe not found or not authorized" });
+            }
+            recipeModel.getRecipeById(id, (err, updatedRecipe) => {
+              if (err) {
+                return res.status(500).json({ error: err.message });
+              }
+              res.json(updatedRecipe);
+            });
           }
-          res.json(updatedRecipe);
-        });
-      }
-    );
+        );
+      });
+    });
   },
 
   deleteRecipe: (req, res) => {
@@ -127,28 +154,18 @@ module.exports = {
   },
 
   likeRecipe: (id, res) => {
-    console.log(`Liking recipe with ID: ${id}`);
-
     recipeModel.likeRecipe(id, (err, changes) => {
       if (err) {
-        console.error("Error liking recipe:", err.message);
-
         return res.status(500).json({ error: err.message });
       }
       if (changes === 0) {
-        console.log("No changes made, recipe not found");
-
         return res.status(404).json({ error: "Recipe not found" });
       }
-      console.log(`Recipe liked successfully, changes: ${changes}`);
 
       recipeModel.getRecipeById(id, (err, recipe) => {
         if (err) {
-          console.error("Error fetching updated recipe:", err.message);
-
           return res.status(500).json({ error: err.message });
         }
-        console.log("Updated Recipe:", recipe);
 
         recipe.ingredients = JSON.parse(recipe.ingredients);
         res.json(recipe);

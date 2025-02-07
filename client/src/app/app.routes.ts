@@ -23,4 +23,12 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./recipes/recipes.routes').then((m) => m.routes),
   },
+  {
+    path: 'profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./auth/userprofile/userprofile.component').then(
+        (m) => m.UserprofileComponent
+      ),
+  },
 ];
