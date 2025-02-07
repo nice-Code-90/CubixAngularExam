@@ -75,7 +75,3 @@ food-recipes-api
 - **GET /recipes/:id**: Retrieve a recipe by ID
 - **PUT /recipes/:id**: Update a recipe by ID
 - **DELETE /recipes/:id**: Delete a recipe by ID
-
-## License
-
-This project is licensed under the MIT License.
