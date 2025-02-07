@@ -46,6 +46,7 @@ export class LoginComponent {
     } else {
       this.showErrorModal('Username and password is required');
     }
+    this.isLoading.set(false);
   }
 
   private showErrorModal(message: string): void {

@@ -1,1 +1,28 @@
-<p>recipe works!</p>
+@if(recipe(); as recipe){
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <img
+          [src]="recipe.picture"
+          class="card-img-top"
+          alt="{{ recipe.title }}"
+        />
+        <div class="card-body">
+          <h5 class="card-title text-center">{{ recipe.title }}</h5>
+          <p class="card-text">{{ recipe.description }}</p>
+          <p class="text-muted text-center">Likes: {{ recipe.likes }}</p>
+          <app-vote
+            [recipe]="recipe"
+            (voteHappened)="voteHappened($event)"
+          ></app-vote>
+          @if(thankYouMessage){
+          <p class="text-center text-success mt-3">{{ thankYouMessage }}</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

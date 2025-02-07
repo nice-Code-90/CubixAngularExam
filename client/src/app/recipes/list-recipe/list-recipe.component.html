@@ -1,13 +1,17 @@
 <div class="container mt-4">
   <div class="row">
     @for (recipe of recipes(); track $index) {
-    <div class="col-md-4 mb-4">
+    <div class="col-md-4 mb-4 card-container">
       <div class="card h-100 test-center">
-        <img
-          [src]="recipe.picture"
-          class="card-img-top"
-          alt="{{ recipe.title }}"
-        />
+        <div class="card-img-top-container">
+          <img
+            [src]="recipe.picture"
+            [routerLink]="['/recipes/', recipe.id]"
+            [queryParams]="{ id: recipe.id }"
+            class="card-img-top"
+            alt="{{ recipe.title }}"
+          />
+        </div>
         <div class="card-body">
           <h5 class="card-title text-center">{{ recipe.title }}</h5>
 
@@ -32,18 +36,11 @@
               >
                 Change
               </button>
-              <button
-                class="btn btn-outline-primary btn-sm me-2"
-                (click)="likeRecipe(recipe)"
-              >
-                Like
-              </button>
-              <button
-                class="btn btn-outline-primary btn-sm"
-                (click)="dislikeRecipe(recipe)"
-              >
-                Dislike
-              </button>
+
+              <app-vote
+                [recipe]="recipe"
+                (voteHappened)="listRecipes().subscribe()"
+              ></app-vote>
             </div>
             <button
               class="btn btn-outline-danger btn-sm"

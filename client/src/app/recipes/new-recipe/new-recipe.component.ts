@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class NewRecipeComponent implements OnInit {
   @Input({ required: false }) recipe?: Recipe;
+
   newRecipe = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),
     description: new FormControl<string>('', [Validators.required]),

@@ -127,17 +127,29 @@ module.exports = {
   },
 
   likeRecipe: (id, res) => {
+    console.log(`Liking recipe with ID: ${id}`);
+
     recipeModel.likeRecipe(id, (err, changes) => {
       if (err) {
+        console.error("Error liking recipe:", err.message);
+
         return res.status(500).json({ error: err.message });
       }
       if (changes === 0) {
+        console.log("No changes made, recipe not found");
+
         return res.status(404).json({ error: "Recipe not found" });
       }
+      console.log(`Recipe liked successfully, changes: ${changes}`);
+
       recipeModel.getRecipeById(id, (err, recipe) => {
         if (err) {
+          console.error("Error fetching updated recipe:", err.message);
+
           return res.status(500).json({ error: err.message });
         }
+        console.log("Updated Recipe:", recipe);
+
         recipe.ingredients = JSON.parse(recipe.ingredients);
         res.json(recipe);
       });

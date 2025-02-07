@@ -1,1 +1,16 @@
-<p>vote works!</p>
+<div class="d-flex justify-content-center align-items-center mt-2">
+  @if(isLoading()){
+  <div class="d-flex justify-content-center align-items-center mt-3">
+    <div class="spinner-border" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+
+  }
+  <button class="btn btn-outline-primary btn-sm me-2" (click)="vote('like')">
+    Like
+  </button>
+  <button class="btn btn-outline-primary btn-sm" (click)="vote('dislike')">
+    Dislike
+  </button>
+</div>

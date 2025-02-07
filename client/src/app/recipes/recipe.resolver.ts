@@ -5,7 +5,7 @@ import { RecipesService } from './recipes.service';
 export const recipeResolver: ResolveFn<any> = (route, state) => {
   const recipeService = inject(RecipesService);
 
-  const id = route.queryParamMap.get('id');
+  const id = route.queryParamMap.get('id') ?? route.paramMap.get('id');
 
   if (id) {
     return recipeService.getRecipeById(id);

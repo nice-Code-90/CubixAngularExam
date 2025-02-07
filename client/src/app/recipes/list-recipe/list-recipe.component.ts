@@ -15,10 +15,11 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { AfterViewInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { VoteComponent } from '../vote/vote.component';
 
 @Component({
   selector: 'app-list-recipe',
-  imports: [CommonModule, ModalComponent, RouterLink],
+  imports: [CommonModule, ModalComponent, RouterLink, VoteComponent],
   templateUrl: './list-recipe.component.html',
   styleUrl: './list-recipe.component.scss',
 })
@@ -51,28 +52,6 @@ export class ListRecipeComponent implements AfterViewInit {
       tap((recipes) => this.recipes.set(recipes)),
       takeUntilDestroyed(this.destroyRef)
     );
-  }
-
-  likeRecipe(recipe: Recipe) {
-    this.recipeService
-      .likeRecipe(recipe)
-      .pipe(
-        switchMap(() => this.listRecipes()),
-
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
-  }
-
-  dislikeRecipe(recipe: Recipe) {
-    this.recipeService
-      .disLikeRecipe(recipe)
-      .pipe(
-        switchMap(() => this.listRecipes()),
-
-        takeUntilDestroyed(this.destroyRef)
-      )
-      .subscribe();
   }
 
   deleteRecipe() {
