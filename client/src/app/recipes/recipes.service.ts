@@ -12,7 +12,7 @@ import { NewRecipe } from './models/newRecipe.model';
 export class RecipesService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
-  private readonly URL = environment.baseUrl;
+  private readonly URL = `${environment.baseUrl}`;
 
   private addFullImageUrl(recipe: Recipe): Recipe {
     return {
@@ -23,7 +23,7 @@ export class RecipesService {
 
   getRecipeById(id: string): Observable<Recipe> {
     return this.http
-      .get<Recipe>(`${environment.baseUrl}/recipes/${id}`)
+      .get<Recipe>(`${this.URL}/recipes/${id}`)
       .pipe(map((recipe) => this.addFullImageUrl(recipe)));
   }
 

@@ -9,5 +9,5 @@ import { BaseLayoutComponent } from './shared/baseLayout/baselayout.component';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'covidTracker';
+  title = 'Recipe Collection Site';
 }
