@@ -1,1 +1,82 @@
-<p>userprofile works!</p>
+<!-- userprofile.component.html -->
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">My Profile</h3>
+        </div>
+        <div class="card-body">
+          @if (user) {
+          <div class="row">
+            <div class="col-md-4 text-center mb-4">
+              <!-- Default avatar image -->
+              <img
+                src="assets/default-avatar.png"
+                alt="Profile Picture"
+                class="rounded-circle img-fluid mb-3"
+                style="width: 150px; height: 150px; object-fit: cover"
+              />
+            </div>
+            <div class="col-md-8">
+              <div class="user-info">
+                <h4 class="mb-3">Account Information</h4>
+                <div class="mb-3">
+                  <label class="text-muted">Username:</label>
+                  <p class="lead mb-2">{{ user.username }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h4 class="mb-3">Account Actions</h4>
+            <div class="d-flex gap-3">
+              <button
+                class="btn btn-outline-primary"
+                [routerLink]="['/change-password']"
+              >
+                Change Password
+              </button>
+              <button
+                class="btn btn-danger"
+                (click)="deleteAccount()"
+                [disabled]="isDeleting"
+              >
+                {{ isDeleting ? "Deleting..." : "Delete Account" }}
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h4 class="mb-3">My Activity</h4>
+            <div class="list-group">
+              <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">My Recipes</h5>
+                  <small class="text-muted">View All</small>
+                </div>
+                <p class="mb-1">See all recipes you've created</p>
+              </a>
+              <a href="#" class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                  <h5 class="mb-1">Liked Recipes</h5>
+                  <small class="text-muted">View All</small>
+                </div>
+                <p class="mb-1">Check recipes you've liked</p>
+              </a>
+            </div>
+          </div>
+          } @else {
+          <div class="text-center">
+            <p>Please log in to view your profile.</p>
+            <button class="btn btn-primary" [routerLink]="['/login']">
+              Log In
+            </button>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

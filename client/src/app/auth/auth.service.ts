@@ -81,4 +81,30 @@ export class AuthService {
     this._currentUser.set(undefined);
     this.router.navigate(['/login']);
   }
+
+  getUserProfile(userId: number): Observable<User> {
+    const headers = this.getAuthHeaders();
+    return this.http.get<User>(`${this.baseUrl}/${userId}`, { headers }).pipe(
+      catchError((error) => {
+        return throwError(
+          () => new Error(error.error.message || 'Failed to fetch user profile')
+        );
+      })
+    );
+  }
+
+  // Felhasználói fiók törlése
+  deleteAccount(userId: number): Observable<any> {
+    const headers = this.getAuthHeaders();
+    return this.http.delete(`${this.baseUrl}/${userId}`, { headers }).pipe(
+      tap(() => {
+        this.logout(); // Sikeres törlés után kijelentkeztetjük a felhasználót
+      }),
+      catchError((error) => {
+        return throwError(
+          () => new Error(error.error.message || 'Failed to delete account')
+        );
+      })
+    );
+  }
 }
