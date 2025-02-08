@@ -52,58 +52,61 @@ module.exports = {
     });
   },
 
-  updateRecipe: (req, res) => {
-    const { id, title, description, picture, ingredients } = req.body;
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ error: "No token provided" });
-    }
+  updateRecipe: (reqData, res) => {
+    const { id, title, description, picture, ingredients, userId } = reqData;
 
-    jwt.verify(token, secretKey, (err, decoded) => {
+    recipeModel.getRecipeById(id, (err, recipe) => {
       if (err) {
-        return res.status(401).json({ error: "Invalid token" });
+        console.log("Error fetching recipe:", err.message);
+        return res.status(500).json({ error: err.message });
+      }
+      if (!recipe) {
+        console.log("Recipe not found");
+        return res.status(404).json({ error: "Recipe not found" });
+      }
+      if (recipe.userId !== userId) {
+        console.log("Not authorized to update this recipe");
+        return res
+          .status(403)
+          .json({ error: "Not authorized to update this recipe" });
       }
 
-      const userId = decoded.id;
-
-      recipeModel.getRecipeById(id, (err, recipe) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-        if (!recipe) {
-          return res.status(404).json({ error: "Recipe not found" });
-        }
-        if (recipe.userId !== userId) {
-          return res
-            .status(403)
-            .json({ error: "Not authorized to update this recipe" });
-        }
-
-        recipeModel.updateRecipe(
-          id,
-          title,
-          description,
-          picture,
-          ingredients,
-          userId,
-          (err, changes) => {
+      console.log("Updating recipe:", {
+        id,
+        title,
+        description,
+        picture,
+        ingredients,
+        userId,
+      });
+      recipeModel.updateRecipe(
+        id,
+        title,
+        description,
+        picture,
+        ingredients,
+        userId,
+        (err, changes) => {
+          if (err) {
+            console.log("Error updating recipe:", err.message);
+            return res.status(500).json({ error: err.message });
+          }
+          if (changes === 0) {
+            console.log("Recipe not found or not authorized");
+            return res
+              .status(404)
+              .json({ error: "Recipe not found or not authorized" });
+          }
+          recipeModel.getRecipeById(id, (err, updatedRecipe) => {
             if (err) {
+              console.log("Error fetching updated recipe:", err.message);
               return res.status(500).json({ error: err.message });
             }
-            if (changes === 0) {
-              return res
-                .status(404)
-                .json({ error: "Recipe not found or not authorized" });
-            }
-            recipeModel.getRecipeById(id, (err, updatedRecipe) => {
-              if (err) {
-                return res.status(500).json({ error: err.message });
-              }
-              res.json(updatedRecipe);
-            });
-          }
-        );
-      });
+            console.log("Updated recipe:", updatedRecipe);
+            res.json(updatedRecipe);
+          });
+        }
+      );
     });
   },
 
