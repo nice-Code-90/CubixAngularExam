@@ -2,6 +2,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  Input,
   OnInit,
   signal,
   ViewChild,
@@ -28,6 +29,7 @@ export class ListRecipeComponent implements AfterViewInit {
   private recipeToDelete?: Recipe;
   private readonly destroyRef = inject(DestroyRef);
   @ViewChild('deleteModal') deleteModal!: ModalComponent;
+  @ViewChild('errorModal') errorModal!: ModalComponent;
 
   getSafeUrl(base64: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(base64);
@@ -44,6 +46,9 @@ export class ListRecipeComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (!this.deleteModal) {
       console.error('deleteModal is not initialized');
+    }
+    if (!this.errorModal) {
+      console.error('errorModal is not initialized');
     }
   }
 
@@ -62,9 +67,22 @@ export class ListRecipeComponent implements AfterViewInit {
           switchMap(() => this.listRecipes()),
           takeUntilDestroyed(this.destroyRef)
         )
-        .subscribe();
+        .subscribe({
+          next: () => {
+            console.log('Recipe deleted successfully');
+          },
+          error: (error) => {
+            console.error('Error deleting recipe:', error);
+            if (this.errorModal) {
+              this.errorModal.showModal();
+            } else {
+              console.error('Error modal not initialized');
+            }
+          },
+        });
     }
   }
+
   confirmDelete(recipe: Recipe) {
     this.recipeToDelete = recipe;
     this.deleteModal.modalId = 'deleteModal';

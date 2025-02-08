@@ -63,3 +63,10 @@
   [message]="'Are you sure you want to delete this recipe?'"
   (confirm)="deleteRecipe()"
 ></app-modal>
+<app-modal
+  #errorModal
+  modalId="errorModal"
+  title="Error"
+  [message]="'Not authorized to delete this recipe'"
+  [showCloseButton]="false"
+></app-modal>
