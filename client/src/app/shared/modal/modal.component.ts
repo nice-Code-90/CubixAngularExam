@@ -11,6 +11,7 @@ export class ModalComponent {
   @Input() title: string = '';
   @Input() message: string = '';
   @Input() showCloseButton: boolean = true;
+  @Input() confirmButtonText: string = 'OK';
 
   @Output() confirm = new EventEmitter<void>();
 
@@ -19,6 +20,15 @@ export class ModalComponent {
     if (modalElement) {
       const modal = new Modal(modalElement);
       modal.show();
+    }
+  }
+  hideModal(): void {
+    const modalElement = document.getElementById(this.modalId);
+    if (modalElement) {
+      const modal = Modal.getInstance(modalElement);
+      if (modal) {
+        modal.hide();
+      }
     }
   }
 

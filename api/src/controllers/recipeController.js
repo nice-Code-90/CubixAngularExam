@@ -193,4 +193,20 @@ module.exports = {
       });
     });
   },
+  checkRecipeOwnership: (req, res) => {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    recipeModel.getRecipeById(id, (err, recipe) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (!recipe) {
+        return res.status(404).json({ error: "Recipe not found" });
+      }
+
+      const isOwner = userId === recipe.userId;
+      res.json({ isOwner });
+    });
+  },
 };

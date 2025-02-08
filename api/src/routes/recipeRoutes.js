@@ -67,4 +67,10 @@ router.put("/:id/dislike", authenticate, (req, res) => {
   recipeController.dislikeRecipe(id, res);
 });
 
+router.get(
+  "/:id/check-ownership",
+  authenticate,
+  recipeController.checkRecipeOwnership
+);
+
 module.exports = router;

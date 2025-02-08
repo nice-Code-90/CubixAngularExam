@@ -29,7 +29,7 @@ export class UserprofileComponent implements OnInit {
       )
     ) {
       this.isDeleting = true;
-      // Itt implementáld a törlés logikát az authService-szel
+      // todo
     }
   }
 }

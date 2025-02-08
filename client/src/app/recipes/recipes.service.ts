@@ -72,4 +72,15 @@ export class RecipesService {
       headers,
     });
   }
+
+  checkRecipeOwnership(recipeId: string): Observable<boolean> {
+    return this.http
+      .get<{ isOwner: boolean }>(
+        `${this.URL}/recipes/${recipeId}/check-ownership`,
+        {
+          headers: this.authService.getAuthHeaders(),
+        }
+      )
+      .pipe(map((response) => response.isOwner));
+  }
 }

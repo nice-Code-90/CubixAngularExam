@@ -93,12 +93,11 @@ export class AuthService {
     );
   }
 
-  // Felhasználói fiók törlése
   deleteAccount(userId: number): Observable<any> {
     const headers = this.getAuthHeaders();
     return this.http.delete(`${this.baseUrl}/${userId}`, { headers }).pipe(
       tap(() => {
-        this.logout(); // Sikeres törlés után kijelentkeztetjük a felhasználót
+        this.logout();
       }),
       catchError((error) => {
         return throwError(

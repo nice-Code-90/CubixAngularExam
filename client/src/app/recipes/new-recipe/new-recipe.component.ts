@@ -105,7 +105,7 @@ export class NewRecipeComponent implements OnInit {
       this.newRecipe.patchValue({
         title: this.recipe.title,
         description: this.recipe.description || '',
-        //picture: this.recipe.picture || null,
+
         ingredients: this.recipe.ingredients || [],
       });
     }

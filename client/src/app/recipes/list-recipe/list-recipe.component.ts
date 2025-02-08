@@ -17,6 +17,7 @@ import { ModalComponent } from '../../shared/modal/modal.component';
 import { AfterViewInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { VoteComponent } from '../vote/vote.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list-recipe',
@@ -26,10 +27,19 @@ import { VoteComponent } from '../vote/vote.component';
 })
 export class ListRecipeComponent implements AfterViewInit {
   private sanitizer = inject(DomSanitizer);
+  private destroyRef = inject(DestroyRef);
   private recipeToDelete?: Recipe;
-  private readonly destroyRef = inject(DestroyRef);
-  @ViewChild('deleteModal') deleteModal!: ModalComponent;
-  @ViewChild('errorModal') errorModal!: ModalComponent;
+  @ViewChild('modalWindow') modalWindow!: ModalComponent;
+  private readonly router = inject(Router);
+
+  modalConfig = {
+    modalId: 'universalModal',
+    title: '',
+    message: '',
+    showCloseButton: true,
+    confirmButtonText: 'OK',
+    currentAction: '',
+  };
 
   getSafeUrl(base64: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(base64);
@@ -44,11 +54,8 @@ export class ListRecipeComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (!this.deleteModal) {
+    if (!this.modalWindow) {
       console.error('deleteModal is not initialized');
-    }
-    if (!this.errorModal) {
-      console.error('errorModal is not initialized');
     }
   }
 
@@ -73,21 +80,81 @@ export class ListRecipeComponent implements AfterViewInit {
           },
           error: (error) => {
             console.error('Error deleting recipe:', error);
-            if (this.errorModal) {
-              this.errorModal.showModal();
-            } else {
-              console.error('Error modal not initialized');
-            }
+            this.modalWindow.hideModal();
+            this.showErrorModal();
           },
         });
     }
   }
+  onModalConfirm() {
+    switch (this.modalConfig.currentAction) {
+      case 'delete':
+        this.deleteRecipe();
+        break;
+      case 'error':
+        this.modalWindow.hideModal();
+        break;
+      default:
+        console.log('No action specified');
+        break;
+    }
+  }
 
-  confirmDelete(recipe: Recipe) {
+  showConfirmModal(recipe: Recipe) {
     this.recipeToDelete = recipe;
-    this.deleteModal.modalId = 'deleteModal';
-    this.deleteModal.title = 'Confirm Delete';
-    this.deleteModal.message = 'Are you sure you want to delete this recipe?';
-    this.deleteModal.showModal();
+    this.modalConfig = {
+      modalId: 'universalModal',
+      title: 'Confirm Delete',
+      message: 'Are you sure you want to delete this recipe?',
+      showCloseButton: true,
+      confirmButtonText: 'Delete',
+      currentAction: 'delete',
+    };
+    this.modalWindow.showModal();
+  }
+  showErrorModal() {
+    this.modalConfig = {
+      modalId: 'universalModal',
+      title: 'Error',
+      message: 'You are not authorized to delete this recipe',
+      showCloseButton: false,
+      confirmButtonText: 'OK',
+      currentAction: 'error',
+    };
+    this.modalWindow.showModal();
+  }
+
+  checkRecipeOwnership(recipe: Recipe) {
+    this.recipeService.checkRecipeOwnership(recipe.id).subscribe({
+      next: (isOwner) => {
+        if (isOwner) {
+          this.router.navigate(['/recipes/new'], {
+            queryParams: { id: recipe.id },
+          });
+        } else {
+          this.modalConfig = {
+            modalId: 'universalModal',
+            title: 'Access Denied',
+            message: 'You can only edit recipes that you created.',
+            showCloseButton: false,
+            confirmButtonText: 'OK',
+            currentAction: 'error',
+          };
+          this.modalWindow.showModal();
+        }
+      },
+      error: (error) => {
+        console.error('Error checking recipe ownership:', error);
+        this.modalConfig = {
+          modalId: 'universalModal',
+          title: 'Error',
+          message: 'An error occurred while checking recipe ownership.',
+          showCloseButton: false,
+          confirmButtonText: 'OK',
+          currentAction: 'error',
+        };
+        this.modalWindow.showModal();
+      },
+    });
   }
 }

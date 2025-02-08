@@ -35,7 +35,7 @@ export class VoteComponent {
 
     observable
       .pipe(
-        tap((updatedRecipe) => this.voteHappened.emit(updatedRecipe)), // Az frissített receptet továbbítjuk
+        tap((updatedRecipe) => this.voteHappened.emit(updatedRecipe)),
         finalize(() => this.isLoading.set(false)),
         takeUntilDestroyed(this.destroyRef)
       )
