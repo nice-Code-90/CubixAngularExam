@@ -5,8 +5,6 @@ const secretKey = process.env.SECRET_KEY;
 
 module.exports = (req, res, next) => {
   const token = req.headers["authorization"];
-  console.log("Full headers:", req.headers);
-  console.log("Authorization header:", token);
 
   if (!token) {
     return res.status(401).json({ error: "No token provided" });

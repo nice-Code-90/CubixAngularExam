@@ -57,7 +57,7 @@ module.exports = {
       });
     });
   },
-  // userController.js-ben
+
   getUserById: (req, res) => {
     const { id } = req.params;
     userModel.getUserById(id, (err, user) => {
@@ -123,5 +123,33 @@ module.exports = {
         res.status(200).json({ message: "User deleted successfully" });
       });
     });
+  },
+  changePassword: (req, res) => {
+    const userId = req.userId;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Old and new password are required" });
+    }
+
+    userModel.changePassword(
+      userId,
+      oldPassword,
+      newPassword,
+      (err, success) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+        if (success) {
+          return res
+            .status(200)
+            .json({ message: "Password changed successfully" });
+        } else {
+          return res.status(400).json({ message: "Failed to change password" });
+        }
+      }
+    );
   },
 };

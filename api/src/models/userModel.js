@@ -36,7 +36,6 @@ module.exports = {
     console.log("Querying user with ID:", id);
     const query = "SELECT * FROM users WHERE id = ?";
 
-    // Cseréld db.query-t db.get-re
     db.get(query, [id], (err, row) => {
       console.log("Query results:", { err, row });
 
@@ -77,5 +76,43 @@ module.exports = {
         callback(null, row.count > 0);
       }
     );
+  },
+
+  changePassword: (id, oldPassword, newPassword, callback) => {
+    db.get("SELECT * FROM users WHERE id = ?", [id], (err, user) => {
+      if (err) {
+        return callback(err);
+      }
+
+      if (!user) {
+        return callback(new Error("User not found"));
+      }
+
+      bcrypt.compare(oldPassword, user.password, (err, isMatch) => {
+        if (err) {
+          return callback(err);
+        }
+
+        if (!isMatch) {
+          return callback(new Error("Incorrect old password"));
+        }
+
+        bcrypt.hash(newPassword, 10, (err, hash) => {
+          if (err) {
+            return callback(err);
+          }
+
+          const stmt = db.prepare("UPDATE users SET password = ? WHERE id = ?");
+          stmt.run(hash, id, function (err) {
+            if (err) {
+              return callback(err);
+            }
+
+            callback(null, this.changes > 0);
+          });
+          stmt.finalize();
+        });
+      });
+    });
   },
 };
