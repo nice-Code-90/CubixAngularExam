@@ -18,10 +18,11 @@ import { CommonModule } from '@angular/common';
 import { Recipe } from '../models/recipe.model';
 import { catchError, finalize, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-new-recipe',
-  imports: [ReactiveFormsModule, RouterModule, CommonModule],
+  imports: [ReactiveFormsModule, RouterModule, CommonModule, LoadingComponent],
   templateUrl: './new-recipe.component.html',
   styleUrl: './new-recipe.component.scss',
 })
@@ -43,16 +44,24 @@ export class NewRecipeComponent implements OnInit {
 
   @HostListener('paste', ['$event'])
   onPaste(event: ClipboardEvent): void {
-    event.preventDefault();
     const items = event.clipboardData?.items;
+
     if (!items) return;
 
-    Array.from(items)
-      .filter((item) => item.type.startsWith('image'))
-      .forEach((item) => {
-        const file = item.getAsFile();
-        if (file) this.handleFile(file);
-      });
+    const hasImage = Array.from(items).some((item) =>
+      item.type.startsWith('image')
+    );
+
+    if (hasImage) {
+      event.preventDefault();
+
+      Array.from(items)
+        .filter((item) => item.type.startsWith('image'))
+        .forEach((item) => {
+          const file = item.getAsFile();
+          if (file) this.handleFile(file);
+        });
+    }
   }
 
   @HostListener('dragover', ['$event'])

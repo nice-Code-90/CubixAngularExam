@@ -7,7 +7,6 @@ import { VoteComponent } from '../vote/vote.component';
 
 @Component({
   selector: 'app-recipe',
-  standalone: true,
   imports: [VoteComponent],
   templateUrl: './recipe.component.html',
   styleUrl: './recipe.component.scss',

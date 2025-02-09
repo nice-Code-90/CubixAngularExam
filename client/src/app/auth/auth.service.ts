@@ -39,7 +39,7 @@ export class AuthService {
     });
   }
 
-  register(username: string, password: string): Observable<User> {
+  register(username: string, password: string) {
     const user = { username, password };
     return this.http.post<User>(this.baseUrl, user).pipe(
       switchMap(() => this.login(username, password)),
@@ -52,7 +52,7 @@ export class AuthService {
     );
   }
 
-  login(username: string, password: string): Observable<any> {
+  login(username: string, password: string) {
     const url = `${this.baseUrl}/login`;
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     const body = { username, password };
@@ -79,12 +79,12 @@ export class AuthService {
   logout() {
     localStorage.removeItem(this.CURRENT_USER_KEY);
     this._currentUser.set(undefined);
-    this.router.navigate(['/login']);
+    this.router.navigate(['/recipes']);
   }
 
-  getUserProfile(userId: number): Observable<User> {
+  getUserProfile(): Observable<User | undefined> {
     const headers = this.getAuthHeaders();
-    return this.http.get<User>(`${this.baseUrl}/${userId}`, { headers }).pipe(
+    return this.http.get<User>(`${this.baseUrl}/profile`, { headers }).pipe(
       catchError((error) => {
         return throwError(
           () => new Error(error.error.message || 'Failed to fetch user profile')
@@ -93,9 +93,10 @@ export class AuthService {
     );
   }
 
-  deleteAccount(userId: number): Observable<any> {
+  deleteAccount() {
+    debugger;
     const headers = this.getAuthHeaders();
-    return this.http.delete(`${this.baseUrl}/${userId}`, { headers }).pipe(
+    return this.http.delete(`${this.baseUrl}/delete`, { headers }).pipe(
       tap(() => {
         this.logout();
       }),

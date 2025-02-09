@@ -26,9 +26,31 @@ module.exports = {
     });
   },
 
+  // getUserById: (id, callback) => {
+  //   db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
+  //     callback(err, row);
+  //   });
+  // },
+
   getUserById: (id, callback) => {
-    db.get("SELECT * FROM users WHERE id = ?", [id], (err, row) => {
-      callback(err, row);
+    console.log("Querying user with ID:", id);
+    const query = "SELECT * FROM users WHERE id = ?";
+
+    // Cseréld db.query-t db.get-re
+    db.get(query, [id], (err, row) => {
+      console.log("Query results:", { err, row });
+
+      if (err) {
+        console.error("Database query error:", err);
+        return callback(err, null);
+      }
+
+      if (!row) {
+        console.warn("No user found for ID:", id);
+        return callback(null, null);
+      }
+
+      callback(null, row);
     });
   },
 
@@ -43,5 +65,17 @@ module.exports = {
       callback(err, this.changes);
     });
     stmt.finalize();
+  },
+  checkUserExists: (id, callback) => {
+    db.get(
+      "SELECT COUNT(*) as count FROM users WHERE id = ?",
+      [id],
+      (err, row) => {
+        if (err) {
+          return callback(err, false);
+        }
+        callback(null, row.count > 0);
+      }
+    );
   },
 };

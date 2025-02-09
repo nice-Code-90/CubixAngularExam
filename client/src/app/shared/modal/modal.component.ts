@@ -12,6 +12,8 @@ export class ModalComponent {
   @Input() message: string = '';
   @Input() showCloseButton: boolean = true;
   @Input() confirmButtonText: string = 'OK';
+  @Input() confirmButtonClass: string = 'btn-primary';
+  @Input() closeButtonText: string = 'Close';
 
   @Output() confirm = new EventEmitter<void>();
 

@@ -5,14 +5,23 @@ const secretKey = process.env.SECRET_KEY;
 
 module.exports = (req, res, next) => {
   const token = req.headers["authorization"];
+  console.log("Full headers:", req.headers);
+  console.log("Authorization header:", token);
+
   if (!token) {
     return res.status(401).json({ error: "No token provided" });
   }
-  jwt.verify(token.split(" ")[1], secretKey, (err, decoded) => {
-    if (err) {
-      return res.status(500).json({ error: "Failed to authenticate token" });
-    }
+
+  try {
+    const actualToken = token.split(" ")[1];
+
+    const decoded = jwt.verify(actualToken, secretKey);
+
     req.userId = decoded.id;
+
     next();
-  });
+  } catch (err) {
+    console.error("Token verification error:", err);
+    return res.status(401).json({ error: "Failed to authenticate token" });
+  }
 };

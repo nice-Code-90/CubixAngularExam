@@ -25,8 +25,15 @@
             >
               New recipe
             </button>
+
             <button class="btn btn-outline-danger" (click)="logout()">
               Logout
+            </button>
+          </div>
+          } @if (!authService.isLoggedIn()){
+          <div>
+            <button class="btn btn-primary" [routerLink]="['/login']">
+              Login
             </button>
           </div>
           }

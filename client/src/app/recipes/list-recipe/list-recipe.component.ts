@@ -64,7 +64,7 @@ export class ListRecipeComponent {
     ACCESS_DENIED: {
       modalId: 'universalModal',
       title: 'Access Denied',
-      message: 'You can only edit recipes that you created.',
+      message: 'You can only edit recipes that you have created.',
       showCloseButton: false,
       confirmButtonText: 'OK',
       currentAction: 'error',
@@ -72,7 +72,7 @@ export class ListRecipeComponent {
     OWNERSHIP_ERROR: {
       modalId: 'universalModal',
       title: 'Error',
-      message: 'An error occurred while checking recipe ownership.',
+      message: 'Please log in for change recpie.',
       showCloseButton: false,
       confirmButtonText: 'OK',
       currentAction: 'error',

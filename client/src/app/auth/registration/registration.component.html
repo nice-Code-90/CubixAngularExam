@@ -73,12 +73,7 @@
               {{ errorMessage }}
             </div>
             } @if(isLoading()){
-            <div class="d-flex justify-content-center align-items-center mt-3">
-              <div class="spinner-border" role="status">
-                <span class="sr-only"></span>
-              </div>
-            </div>
-
+            <app-loadingCircle />
             }
             <div class="d-flex justify-content-center pt-4">
               <button

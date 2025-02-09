@@ -8,18 +8,9 @@
         </div>
         <div class="card-body">
           @if (user) {
-          <div class="row">
-            <div class="col-md-4 text-center mb-4">
-              <!-- Default avatar image -->
-              <img
-                src="assets/default-avatar.png"
-                alt="Profile Picture"
-                class="rounded-circle img-fluid mb-3"
-                style="width: 150px; height: 150px; object-fit: cover"
-              />
-            </div>
+          <div class="row w-100 d-flex justify-content-center">
             <div class="col-md-8">
-              <div class="user-info">
+              <div class="user-info text-center">
                 <h4 class="mb-3">Account Information</h4>
                 <div class="mb-3">
                   <label class="text-muted">Username:</label>
@@ -79,4 +70,11 @@
       </div>
     </div>
   </div>
+  <app-modal
+    #deleteAccountModal
+    modalId="deleteAccount"
+    title="Error"
+    [message]="deleteMessage"
+    [showCloseButton]="false"
+  ></app-modal>
 </div>

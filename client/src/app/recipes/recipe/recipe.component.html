@@ -11,6 +11,10 @@
         />
         <div class="card-body">
           <h5 class="card-title text-center">{{ recipe.title }}</h5>
+          <p class="card-text">{{ recipe.ingredients }}</p>
+
+          <hr class="border border-primary" />
+
           <p class="card-text">{{ recipe.description }}</p>
           <p class="text-muted text-center">Likes: {{ recipe.likes }}</p>
           <app-vote
