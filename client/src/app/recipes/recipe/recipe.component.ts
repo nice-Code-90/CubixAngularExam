@@ -1,41 +1,40 @@
 import { Component, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Recipe } from '../models/recipe.model';
-import { map, tap } from 'rxjs';
-import { VoteComponent } from '../vote/vote.component';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { RecipesService } from '../recipes.service';
+import { VoteComponent } from '../vote/vote.component';
 
 @Component({
   selector: 'app-recipe',
+  standalone: true,
   imports: [VoteComponent],
   templateUrl: './recipe.component.html',
   styleUrl: './recipe.component.scss',
 })
 export class RecipeComponent {
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private sanitizer = inject(DomSanitizer);
-  private readonly recipeService = inject(RecipesService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly sanitizer = inject(DomSanitizer);
+
+  readonly recipe = signal<Recipe | undefined>(undefined);
+  readonly thankYouMessage = signal<string>('');
+
+  constructor() {
+    this.initializeRecipe();
+  }
+
+  private initializeRecipe(): void {
+    this.route.data
+      .pipe(takeUntilDestroyed())
+      .subscribe(({ recipe }) => this.recipe.set(recipe));
+  }
 
   getSafeUrl(base64: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(base64);
   }
-  public recipe = signal<Recipe | undefined>(undefined);
 
-  constructor() {
-    this.activatedRoute.data
-      .pipe(
-        map((data) => data['recipe']),
-        takeUntilDestroyed()
-      )
-      .subscribe((recipe) => this.recipe.set(recipe));
-  }
-
-  thankYouMessage: string = '';
-
-  voteHappened(updatedRecipe: Recipe) {
-    this.thankYouMessage = 'Thank you for voting';
+  voteHappened(updatedRecipe: Recipe): void {
+    this.thankYouMessage.set('Thank you for voting');
     this.recipe.set(updatedRecipe);
   }
 }

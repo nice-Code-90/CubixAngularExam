@@ -1,4 +1,11 @@
-import { Component, DestroyRef, Input, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  HostListener,
+  Input,
+  OnInit,
+  signal,
+} from '@angular/core';
 import {
   FormGroup,
   Validators,
@@ -34,38 +41,46 @@ export class NewRecipeComponent implements OnInit {
   isLoading = signal(false);
   previewUrl: string | null = null;
 
-  onPaste(event: ClipboardEvent) {
+  @HostListener('paste', ['$event'])
+  onPaste(event: ClipboardEvent): void {
     event.preventDefault();
     const items = event.clipboardData?.items;
+    if (!items) return;
 
-    if (items) {
-      for (let i = 0; i < items.length; i++) {
-        if (items[i].type.indexOf('image') !== -1) {
-          const file = items[i].getAsFile();
-          if (file) {
-            this.handleFile(file);
-          }
-        }
-      }
-    }
+    Array.from(items)
+      .filter((item) => item.type.startsWith('image'))
+      .forEach((item) => {
+        const file = item.getAsFile();
+        if (file) this.handleFile(file);
+      });
   }
 
-  onDragOver(event: DragEvent) {
+  @HostListener('dragover', ['$event'])
+  onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
   }
 
-  onDrop(event: DragEvent) {
+  @HostListener('drop', ['$event'])
+  onDrop(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
 
     const files = event.dataTransfer?.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('image/')) {
-        this.handleFile(file);
-      }
+
+    if (!files?.length) return;
+
+    const file = files[0];
+
+    if (this.isValidImageFile(file)) {
+      this.handleFile(file);
     }
+  }
+  private isValidImageFile(file: File): boolean {
+    const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024;
+
+    return validTypes.includes(file.type) && file.size <= maxSize;
   }
 
   onFileSelected(event: Event) {
@@ -134,16 +149,10 @@ export class NewRecipeComponent implements OnInit {
   }
 
   save() {
+    if (this.isLoading()) return;
     this.isLoading.set(true);
 
-    const formData = new FormData();
-    formData.append('title', this.newRecipe.value.title!);
-    formData.append('description', this.newRecipe.value.description!);
-
-    if (this.pictureOfRecipe) {
-      formData.append('picture', this.pictureOfRecipe);
-    }
-    formData.append('ingredients', JSON.stringify(this.ingredients));
+    const formData = this.createFormData();
 
     const operation = this.recipe
       ? this.recipesService.editRecipe(this.recipe.id, formData)
@@ -151,14 +160,30 @@ export class NewRecipeComponent implements OnInit {
 
     operation
       .pipe(
-        tap(() => this.router.navigate(['/recipes'])),
-        catchError((error) => {
-          console.error('Error saving recipe:', error);
-          throw error;
-        }),
-        finalize(() => this.isLoading.set(false)),
-        takeUntilDestroyed(this.destroyRef)
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.isLoading.set(false))
       )
-      .subscribe();
+      .subscribe({
+        next: () => this.router.navigate(['/recipes']),
+        error: (error) => {
+          console.error('Error saving recipe:', error);
+          // todo
+        },
+      });
+  }
+  private createFormData(): FormData {
+    const formData = new FormData();
+    const { title, description } = this.newRecipe.value;
+
+    formData.append('title', title!);
+    formData.append('description', description!);
+
+    if (this.pictureOfRecipe) {
+      formData.append('picture', this.pictureOfRecipe);
+    }
+
+    formData.append('ingredients', JSON.stringify(this.ingredients));
+
+    return formData;
   }
 }

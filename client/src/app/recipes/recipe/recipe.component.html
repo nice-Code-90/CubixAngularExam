@@ -17,8 +17,8 @@
             [recipe]="recipe"
             (voteHappened)="voteHappened($event)"
           ></app-vote>
-          @if(thankYouMessage){
-          <p class="text-center text-success mt-3">{{ thankYouMessage }}</p>
+          @if(thankYouMessage()){
+          <p class="text-center text-success mt-3">{{ thankYouMessage() }}</p>
           }
         </div>
       </div>
