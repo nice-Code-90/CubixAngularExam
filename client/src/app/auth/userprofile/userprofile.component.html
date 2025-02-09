@@ -25,7 +25,7 @@
             <div class="d-flex gap-3">
               <button
                 class="btn btn-outline-primary"
-                [routerLink]="['/change-password']"
+                (click)="changePassword()"
               >
                 Change Password
               </button>
@@ -77,4 +77,14 @@
     [message]="deleteMessage"
     [showCloseButton]="false"
   ></app-modal>
+
+  <app-change-password-modal
+    #changePasswordModal
+    modalId="changePassword"
+    oldPassword="oldPassword"
+    newPassword="newPassword"
+    confirmPassword="confirmPassword"
+    errorMessage="errorMessage"
+    (passwordChanged)="onPasswordChanged()"
+  ></app-change-password-modal>
 </div>

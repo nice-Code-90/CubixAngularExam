@@ -5,10 +5,16 @@ import { User } from '../models/user.model';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { ChangePasswordModalComponent } from './change-password-modal/change-password-modal.component';
 
 @Component({
   selector: 'app-userprofile',
-  imports: [CommonModule, RouterModule, ModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ModalComponent,
+    ChangePasswordModalComponent,
+  ],
   templateUrl: './userprofile.component.html',
   styleUrl: './userprofile.component.scss',
 })
@@ -20,6 +26,9 @@ export class UserprofileComponent implements OnInit {
 
   constructor(private authService: AuthService) {}
   @ViewChild('deleteAccountModal') deleteAccountModal!: ModalComponent;
+  @ViewChild('changePasswordModal')
+  changePasswordModal!: ChangePasswordModalComponent;
+
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   ngOnInit(): void {
@@ -44,6 +53,13 @@ export class UserprofileComponent implements OnInit {
     this.deleteAccountModal.showModal();
   }
 
+  changePassword() {
+    this.changePasswordModal.passwordChanged.subscribe(() => {
+      this.onPasswordChanged();
+    });
+    this.changePasswordModal.showModal();
+  }
+
   confirmDeleteAccount() {
     console.log('confirm delete called');
     this.isDeleting = true;
@@ -61,5 +77,10 @@ export class UserprofileComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  onPasswordChanged() {
+    console.log('Password changed successfully');
+    // További logika, ha szükséges
   }
 }

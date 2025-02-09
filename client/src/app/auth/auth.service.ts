@@ -94,7 +94,6 @@ export class AuthService {
   }
 
   deleteAccount() {
-    debugger;
     const headers = this.getAuthHeaders();
     return this.http.delete(`${this.baseUrl}/delete`, { headers }).pipe(
       tap(() => {
@@ -106,5 +105,19 @@ export class AuthService {
         );
       })
     );
+  }
+
+  changePassword(oldP: string, newP: string) {
+    const headers = this.getAuthHeaders();
+    const body = { oldP, newP };
+    return this.http
+      .put<void>(`${this.baseUrl})/change-password`, body, { headers })
+      .pipe(
+        catchError((error) => {
+          return throwError(
+            () => new Error(error.error.message || 'Failed to change password')
+          );
+        })
+      );
   }
 }
