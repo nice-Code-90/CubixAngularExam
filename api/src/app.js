@@ -22,7 +22,7 @@ app.use("/api/users", userRoutes);
 
 app.get("*", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "dist/recpieTracker/browser", "index.html")
+    path.join(__dirname, "dist/recipeTracker/browser", "index.html")
   );
 });
 app.listen(port, () => {

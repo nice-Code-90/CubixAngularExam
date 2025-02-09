@@ -1,23 +1,31 @@
+import { CommonModule } from '@angular/common';
+import { ModalComponent } from '../../shared/modal/modal.component';
 import {
   Component,
-  DestroyRef,
+  AfterViewInit,
   inject,
-  Input,
-  OnInit,
-  signal,
+  DestroyRef,
   ViewChild,
+  signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { RouterLink, Router } from '@angular/router';
+import { tap, switchMap, catchError, EMPTY } from 'rxjs';
 import { Recipe } from '../models/recipe.model';
 import { RecipesService } from '../recipes.service';
-import { switchMap, tap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { ModalComponent } from '../../shared/modal/modal.component';
-import { AfterViewInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { VoteComponent } from '../vote/vote.component';
-import { Router } from '@angular/router';
+
+interface ModalConfig {
+  modalId: string;
+  title: string;
+  message: string;
+  showCloseButton: boolean;
+  confirmButtonText: string;
+  currentAction: ModalAction;
+}
+
+type ModalAction = 'delete' | 'error' | '';
 
 @Component({
   selector: 'app-list-recipe',
@@ -25,14 +33,53 @@ import { Router } from '@angular/router';
   templateUrl: './list-recipe.component.html',
   styleUrl: './list-recipe.component.scss',
 })
-export class ListRecipeComponent implements AfterViewInit {
-  private sanitizer = inject(DomSanitizer);
-  private destroyRef = inject(DestroyRef);
-  private recipeToDelete?: Recipe;
-  @ViewChild('modalWindow') modalWindow!: ModalComponent;
+export class ListRecipeComponent {
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly recipeService = inject(RecipesService);
 
-  modalConfig = {
+  @ViewChild('modalWindow') private modalWindow!: ModalComponent;
+
+  private recipeToDelete?: Recipe;
+  readonly recipes = signal<Recipe[]>([]);
+
+  private readonly MODAL_CONFIGS: Record<string, ModalConfig> = {
+    DELETE_CONFIRM: {
+      modalId: 'universalModal',
+      title: 'Confirm Delete',
+      message: 'Are you sure you want to delete this recipe?',
+      showCloseButton: true,
+      confirmButtonText: 'Delete',
+      currentAction: 'delete',
+    },
+    ERROR: {
+      modalId: 'universalModal',
+      title: 'Error',
+      message: 'You are not authorized to delete this recipe',
+      showCloseButton: false,
+      confirmButtonText: 'OK',
+      currentAction: 'error',
+    },
+    ACCESS_DENIED: {
+      modalId: 'universalModal',
+      title: 'Access Denied',
+      message: 'You can only edit recipes that you created.',
+      showCloseButton: false,
+      confirmButtonText: 'OK',
+      currentAction: 'error',
+    },
+    OWNERSHIP_ERROR: {
+      modalId: 'universalModal',
+      title: 'Error',
+      message: 'An error occurred while checking recipe ownership.',
+      showCloseButton: false,
+      confirmButtonText: 'OK',
+      currentAction: 'error',
+    },
+  };
+
+  modalConfig: ModalConfig = {
     modalId: 'universalModal',
     title: '',
     message: '',
@@ -41,22 +88,16 @@ export class ListRecipeComponent implements AfterViewInit {
     currentAction: '',
   };
 
+  constructor() {
+    this.initializeRecipes();
+  }
+
   getSafeUrl(base64: string): SafeUrl {
     return this.sanitizer.bypassSecurityTrustUrl(base64);
   }
 
-  recipes = signal<Recipe[]>([]);
-
-  private readonly recipeService = inject(RecipesService);
-
-  constructor() {
+  private initializeRecipes(): void {
     this.listRecipes().subscribe();
-  }
-
-  ngAfterViewInit(): void {
-    if (!this.modalWindow) {
-      console.error('deleteModal is not initialized');
-    }
   }
 
   listRecipes() {
@@ -67,94 +108,75 @@ export class ListRecipeComponent implements AfterViewInit {
   }
 
   deleteRecipe() {
-    if (this.recipeToDelete) {
-      this.recipeService
-        .deleteRecipe(this.recipeToDelete)
-        .pipe(
-          switchMap(() => this.listRecipes()),
-          takeUntilDestroyed(this.destroyRef)
-        )
-        .subscribe({
-          next: () => {
-            console.log('Recipe deleted successfully');
-          },
-          error: (error) => {
-            console.error('Error deleting recipe:', error);
-            this.modalWindow.hideModal();
-            this.showErrorModal();
-          },
-        });
-    }
+    if (!this.recipeToDelete) return;
+
+    this.recipeService
+      .deleteRecipe(this.recipeToDelete)
+      .pipe(
+        tap(() => console.log('Recipe deleted successfully')),
+        switchMap(() => this.listRecipes()),
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          console.error('Error deleting recipe:', error);
+          this.handleModalError();
+          return EMPTY;
+        })
+      )
+      .subscribe();
   }
+
   onModalConfirm() {
-    switch (this.modalConfig.currentAction) {
-      case 'delete':
-        this.deleteRecipe();
-        break;
-      case 'error':
-        this.modalWindow.hideModal();
-        break;
-      default:
-        console.log('No action specified');
-        break;
-    }
+    const actions: Record<ModalAction, () => void> = {
+      delete: () => this.deleteRecipe(),
+      error: () => this.modalWindow.hideModal(),
+      '': () => console.log('No action specified'),
+    };
+
+    const action = actions[this.modalConfig.currentAction];
+    action?.();
   }
 
   showConfirmModal(recipe: Recipe) {
     this.recipeToDelete = recipe;
-    this.modalConfig = {
-      modalId: 'universalModal',
-      title: 'Confirm Delete',
-      message: 'Are you sure you want to delete this recipe?',
-      showCloseButton: true,
-      confirmButtonText: 'Delete',
-      currentAction: 'delete',
-    };
-    this.modalWindow.showModal();
+    this.showModal(this.MODAL_CONFIGS['DELETE_CONFIRM']);
   }
-  showErrorModal() {
-    this.modalConfig = {
-      modalId: 'universalModal',
-      title: 'Error',
-      message: 'You are not authorized to delete this recipe',
-      showCloseButton: false,
-      confirmButtonText: 'OK',
-      currentAction: 'error',
-    };
+
+  private handleModalError(): void {
+    this.modalWindow.hideModal();
+    this.showModal(this.MODAL_CONFIGS['ERROR']);
+  }
+
+  private showModal(config: ModalConfig): void {
+    this.modalConfig = config;
     this.modalWindow.showModal();
   }
 
   checkRecipeOwnership(recipe: Recipe) {
-    this.recipeService.checkRecipeOwnership(recipe.id).subscribe({
-      next: (isOwner) => {
-        if (isOwner) {
-          this.router.navigate(['/recipes/new'], {
-            queryParams: { id: recipe.id },
-          });
-        } else {
-          this.modalConfig = {
-            modalId: 'universalModal',
-            title: 'Access Denied',
-            message: 'You can only edit recipes that you created.',
-            showCloseButton: false,
-            confirmButtonText: 'OK',
-            currentAction: 'error',
-          };
-          this.modalWindow.showModal();
-        }
-      },
-      error: (error) => {
-        console.error('Error checking recipe ownership:', error);
-        this.modalConfig = {
-          modalId: 'universalModal',
-          title: 'Error',
-          message: 'An error occurred while checking recipe ownership.',
-          showCloseButton: false,
-          confirmButtonText: 'OK',
-          currentAction: 'error',
-        };
-        this.modalWindow.showModal();
-      },
+    if (!recipe?.id) return;
+
+    this.recipeService
+      .checkRecipeOwnership(recipe.id)
+      .pipe(
+        tap((isOwner) => {
+          if (isOwner) {
+            this.navigateToEditRecipe(recipe.id);
+          } else {
+            this.showModal(this.MODAL_CONFIGS['ACCESS_DENIED']);
+          }
+        }),
+        catchError((error) => {
+          console.error('Error checking recipe ownership:', error);
+          this.showModal(this.MODAL_CONFIGS['OWNERSHIP_ERROR']);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe();
+  }
+
+  private navigateToEditRecipe(recipeId: string): void {
+    this.router.navigate(['/recipes/new'], {
+      queryParams: { id: recipeId },
     });
   }
 }

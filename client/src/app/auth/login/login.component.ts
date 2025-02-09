@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { AuthService } from '../auth.service';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -9,10 +15,19 @@ import {
   Validators,
 } from '@angular/forms';
 import { ModalComponent } from '../../shared/modal/modal.component';
+import { finalize, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ModalComponent,
+    RouterLink,
+    LoadingComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -25,6 +40,8 @@ export class LoginComponent {
 
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private destroyRef = inject(DestroyRef);
+
   isLoading = signal(false);
 
   @ViewChild('errorModal') errorModal!: ModalComponent;
@@ -34,30 +51,35 @@ export class LoginComponent {
 
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
-      this.authService.login(username!, password!).subscribe({
-        next: () => {
-          this.router.navigate(['/recipes']);
-        },
-        error: (err) => {
-          console.error('Login failed', err);
-          this.showErrorModal('Hibás felhasználónév vagy jelszó');
-        },
-      });
+      this.authService
+        .login(username!, password!)
+        .pipe(
+          tap(() => this.router.navigate(['/recipes'])),
+          takeUntilDestroyed(this.destroyRef),
+          finalize(() => this.isLoading.set(false))
+        )
+        .subscribe({
+          error: (err) => {
+            console.error('Login failed', err);
+            this.showErrorModal('Hibás felhasználónév vagy jelszó');
+          },
+        });
     } else {
       this.showErrorModal('Username and password is required');
+      this.isLoading.set(false);
     }
-    this.isLoading.set(false);
   }
 
   private showErrorModal(message: string): void {
-    this.errorMessage = message;
-    if (this.errorModal) {
-      this.errorModal.modalId = 'errorModal';
-      this.errorModal.title = 'Error';
-      this.errorModal.message = message;
-      this.errorModal.showModal();
-    } else {
+    if (!this.errorModal) {
       console.error('errorModal is not initialized');
+      return;
     }
+
+    this.errorMessage = message;
+    this.errorModal.modalId = 'errorModal';
+    this.errorModal.title = 'Error';
+    this.errorModal.message = message;
+    this.errorModal.showModal();
   }
 }

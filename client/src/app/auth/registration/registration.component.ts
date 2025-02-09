@@ -31,18 +31,19 @@ export class RegistrationComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
-  public registration() {
-    if (this.registrationForm.invalid) {
-      this.errorMessage = 'Please fill out the form correctly';
-      this.clearErrorMessage();
+  public registration(): void {
+    if (this.isFormInvalid()) {
       return;
     }
 
     const { username, password, passwordCheck } = this.registrationForm.value;
 
-    if (password !== passwordCheck) {
-      this.errorMessage = 'Passwords do not match';
-      this.clearErrorMessage();
+    if (!username || !password || !passwordCheck) {
+      this.setErrorMessage('Please fill out the form correctly');
+      return;
+    }
+
+    if (this.isPasswordMismatch(password, passwordCheck)) {
       return;
     }
 
@@ -51,24 +52,44 @@ export class RegistrationComponent {
     this.auth
       .register(username!, password!)
       .pipe(
-        tap(() => {
-          this.router.navigate(['/']);
-        }),
+        tap(() => this.router.navigate(['/recipes'])),
         catchError((err) => {
-          this.errorMessage = err.message;
-          this.clearErrorMessage();
+          this.handleError(err);
           return [];
         }),
-        finalize(() => {
-          this.isLoading.set(false);
-        })
+        finalize(() => this.isLoading.set(false))
       )
       .subscribe();
+  }
+
+  private isFormInvalid(): boolean {
+    if (this.registrationForm.invalid) {
+      this.setErrorMessage('Please fill out the form correctly');
+      return true;
+    }
+    return false;
+  }
+
+  private isPasswordMismatch(password: string, passwordCheck: string): boolean {
+    if (password !== passwordCheck) {
+      this.setErrorMessage('Passwords do not match');
+      return true;
+    }
+    return false;
+  }
+
+  private setErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.clearErrorMessage();
   }
 
   private clearErrorMessage() {
     setTimeout(() => {
       this.errorMessage = '';
     }, 3000);
+  }
+
+  private handleError(error: any): void {
+    this.setErrorMessage(error.message || 'Registration failed');
   }
 }

@@ -4,7 +4,8 @@
   "description": "API for managing food recipes with CRUD operations.",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app.js"
+    "start": "node src/app.js",
+    "build": "ng build --prod --output-path=dist/recipeTracker/browser"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,5 +18,8 @@
     "sqlite3": "^5.0.2"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.4"
+  }
 }
