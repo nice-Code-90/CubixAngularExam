@@ -15,12 +15,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { ModalComponent } from '../../shared/modal/modal.component';
-import { finalize, tap } from 'rxjs';
+import { catchError, finalize, of, tap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoadingComponent } from '../../shared/loading/loading.component';
 
 @Component({
   selector: 'app-login',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -55,19 +56,22 @@ export class LoginComponent {
         .login(username!, password!)
         .pipe(
           tap(() => this.router.navigate(['/recipes'])),
-          takeUntilDestroyed(this.destroyRef),
-          finalize(() => this.isLoading.set(false))
+          catchError((err) => {
+            this.handleError(err);
+            return of(null);
+          }),
+          finalize(() => this.isLoading.set(false)),
+          takeUntilDestroyed(this.destroyRef)
         )
-        .subscribe({
-          error: (err) => {
-            console.error('Login failed', err);
-            this.showErrorModal('Hibás felhasználónév vagy jelszó');
-          },
-        });
+        .subscribe();
     } else {
       this.showErrorModal('Username and password is required');
       this.isLoading.set(false);
     }
+  }
+  private handleError(err: any): void {
+    console.error('Login failed', err);
+    this.showErrorModal('Wrong username or password');
   }
 
   private showErrorModal(message: string): void {

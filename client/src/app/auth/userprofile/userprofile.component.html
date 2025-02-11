@@ -1,5 +1,4 @@
-<!-- userprofile.component.html -->
-<div class="container mt-5">
+<div class="container mt-5 userprofile-main">
   <div class="row justify-content-center">
     <div class="col-md-8">
       <div class="card">
@@ -22,10 +21,10 @@
 
           <div class="mt-4">
             <h4 class="mb-3">Account Actions</h4>
-            <div class="d-flex gap-3">
+            <div class="d-flex gap-3 justify-content-between">
               <button
                 class="btn btn-outline-primary"
-                (click)="changePassword()"
+                (click)="changePasswordModal.showModal()"
               >
                 Change Password
               </button>
@@ -42,14 +41,20 @@
           <div class="mt-4">
             <h4 class="mb-3">My Activity</h4>
             <div class="list-group">
-              <a href="#" class="list-group-item list-group-item-action">
+              <a
+                (click)="notImplemented()"
+                class="list-group-item list-group-item-action"
+              >
                 <div class="d-flex w-100 justify-content-between">
                   <h5 class="mb-1">My Recipes</h5>
                   <small class="text-muted">View All</small>
                 </div>
                 <p class="mb-1">See all recipes you've created</p>
               </a>
-              <a href="#" class="list-group-item list-group-item-action">
+              <a
+                (click)="notImplemented()"
+                class="list-group-item list-group-item-action"
+              >
                 <div class="d-flex w-100 justify-content-between">
                   <h5 class="mb-1">Liked Recipes</h5>
                   <small class="text-muted">View All</small>
@@ -71,7 +76,7 @@
     </div>
   </div>
   <app-modal
-    #deleteAccountModal
+    #generalModal
     modalId="deleteAccount"
     title="Error"
     [message]="deleteMessage"
@@ -81,10 +86,10 @@
   <app-change-password-modal
     #changePasswordModal
     modalId="changePassword"
-    oldPassword="oldPassword"
-    newPassword="newPassword"
-    confirmPassword="confirmPassword"
-    errorMessage="errorMessage"
-    (passwordChanged)="onPasswordChanged()"
+    oldPassword=""
+    newPassword=""
+    confirmPassword=""
+    errorMessage=""
+    (passwordChanged)="onPasswordChanged($event)"
   ></app-change-password-modal>
 </div>

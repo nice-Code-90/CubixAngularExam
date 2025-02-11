@@ -107,11 +107,11 @@ export class AuthService {
     );
   }
 
-  changePassword(oldP: string, newP: string) {
+  changePassword(oldPassword: string, newPassword: string) {
     const headers = this.getAuthHeaders();
-    const body = { oldP, newP };
+    const body = { oldPassword, newPassword };
     return this.http
-      .put<void>(`${this.baseUrl})/change-password`, body, { headers })
+      .put<void>(`${this.baseUrl}/change-password`, body, { headers })
       .pipe(
         catchError((error) => {
           return throwError(

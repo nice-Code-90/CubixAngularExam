@@ -1,14 +1,25 @@
 // userprofile.component.ts
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { AuthService } from '../auth.service';
 import { User } from '../models/user.model';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ModalComponent } from '../../shared/modal/modal.component';
 import { ChangePasswordModalComponent } from './change-password-modal/change-password-modal.component';
+import { catchError, finalize, of, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-userprofile',
+  standalone: true,
+
   imports: [
     CommonModule,
     RouterModule,
@@ -23,9 +34,14 @@ export class UserprofileComponent implements OnInit {
   isDeleting = false;
   deleteMessage: string = '';
   isLoading = signal(false);
+  oldPassword: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+  errorMessage: string = '';
+  destroyRef = inject(DestroyRef);
 
   constructor(private authService: AuthService) {}
-  @ViewChild('deleteAccountModal') deleteAccountModal!: ModalComponent;
+  @ViewChild('generalModal') generalModal!: ModalComponent;
   @ViewChild('changePasswordModal')
   changePasswordModal!: ChangePasswordModalComponent;
 
@@ -40,24 +56,17 @@ export class UserprofileComponent implements OnInit {
 
   deleteAccount() {
     // Modal beállítása
-    this.deleteAccountModal.title = 'Confirm Account Deletion';
-    this.deleteAccountModal.message =
+    this.generalModal.title = 'Confirm Account Deletion';
+    this.generalModal.message =
       'Are you sure you want to delete your account? This action cannot be undone.';
-    this.deleteAccountModal.confirmButtonText = 'Delete Account';
-    this.deleteAccountModal.confirmButtonClass = 'btn-danger';
-    this.deleteAccountModal.showCloseButton = true;
-    this.deleteAccountModal.closeButtonText = 'Kepp my account alive';
-    this.deleteAccountModal.confirm.subscribe(() => {
+    this.generalModal.confirmButtonText = 'Delete Account';
+    this.generalModal.confirmButtonClass = 'btn-danger';
+    this.generalModal.showCloseButton = true;
+    this.generalModal.closeButtonText = 'Kepp my account alive';
+    this.generalModal.confirm.subscribe(() => {
       this.confirmDeleteAccount();
     });
-    this.deleteAccountModal.showModal();
-  }
-
-  changePassword() {
-    this.changePasswordModal.passwordChanged.subscribe(() => {
-      this.onPasswordChanged();
-    });
-    this.changePasswordModal.showModal();
+    this.generalModal.showModal();
   }
 
   confirmDeleteAccount() {
@@ -65,22 +74,88 @@ export class UserprofileComponent implements OnInit {
     this.isDeleting = true;
     this.isLoading.set(true);
 
-    this.authService.deleteAccount().subscribe({
-      next: () => {
-        // Sikeres törlés után kijelentkeztetés és átirányítás
-        this.authService.logout();
-        this.router.navigate(['/']);
-      },
-      error: (error) => {
-        this.deleteMessage = error.message || 'Failed to delete account';
-        this.isDeleting = false;
-        this.isLoading.set(false);
-      },
-    });
+    this.authService
+      .deleteAccount()
+      .pipe(
+        tap(() => {
+          this.authService.logout();
+          this.router.navigate(['/']);
+        }),
+        catchError((error) => {
+          this.deleteMessage = error.message || 'Failed to delete account';
+          this.isDeleting = false;
+          this.isLoading.set(false);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
-  onPasswordChanged() {
-    console.log('Password changed successfully');
-    // További logika, ha szükséges
+  changePassword(
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) {
+    if (newPassword !== confirmPassword) {
+      this.changePasswordModal.hideModal();
+    }
+
+    this.isLoading.set(true);
+    this.authService
+      .changePassword(oldPassword, newPassword)
+      .pipe(
+        tap(() => {
+          this.router.navigate(['/profile']),
+            takeUntilDestroyed(this.destroyRef),
+            this.changePasswordModal.hideModal();
+          this.generalModal.title = 'Password Changed';
+          this.generalModal.message = 'Password has been changed succesfully';
+          this.generalModal.confirmButtonText = 'OK';
+          this.generalModal.confirmButtonClass = 'btn-primary';
+          this.generalModal.showCloseButton = false;
+          this.generalModal.showModal();
+
+          finalize(() => this.isLoading.set(false));
+        }),
+        catchError((error) => {
+          this.changePasswordModal.hideModal();
+
+          this.generalModal.title = 'Error';
+          this.generalModal.message = error.message;
+          this.generalModal.confirmButtonText = 'OK';
+          this.generalModal.confirmButtonClass = 'btn-primary';
+          this.generalModal.showCloseButton = false;
+
+          this.generalModal.showModal();
+
+          this.errorMessage = error.message || 'Failed to change password';
+          this.isLoading.set(false);
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+  resetPasswordFields() {
+    this.oldPassword = this.newPassword = this.confirmPassword = '';
+  }
+
+  notImplemented() {
+    this.generalModal.title = 'INFO';
+    this.generalModal.message = 'Function not implemented yet';
+    this.generalModal.confirmButtonText = 'OK';
+    this.generalModal.confirmButtonClass = 'btn-primary';
+    this.generalModal.showCloseButton = false;
+    this.generalModal.showModal();
+  }
+  onPasswordChanged(event: {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) {
+    this.changePassword(
+      event.oldPassword,
+      event.newPassword,
+      event.confirmPassword
+    );
   }
 }

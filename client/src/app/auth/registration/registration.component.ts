@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -12,6 +12,7 @@ import { tap, catchError, finalize } from 'rxjs/operators';
 import { signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoadingComponent } from '../../shared/loading/loading.component';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-registration',
@@ -31,6 +32,7 @@ export class RegistrationComponent {
   private readonly auth = inject(AuthService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  destroyRef = inject(DestroyRef);
 
   public registration(): void {
     if (this.isFormInvalid()) {
@@ -54,6 +56,7 @@ export class RegistrationComponent {
       .register(username!, password!)
       .pipe(
         tap(() => this.router.navigate(['/recipes'])),
+        takeUntilDestroyed(this.destroyRef),
         catchError((err) => {
           this.handleError(err);
           return [];

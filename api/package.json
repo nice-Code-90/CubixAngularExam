@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "build": "ng build --prod --output-path=dist/recipeTracker/browser"
+    "build": "echo 'No build needed - using pre-built Angular files'"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -17,8 +17,6 @@
     "path": "^0.12.7",
     "sqlite3": "^5.0.2"
   },
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
     "@flydotio/dockerfile": "^0.7.4"
   }
