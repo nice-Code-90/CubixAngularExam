@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   inject,
+  Input,
   signal,
   ViewChild,
 } from '@angular/core';
@@ -81,9 +82,9 @@ export class LoginComponent {
     }
 
     this.errorMessage = message;
-    this.errorModal.modalId = 'errorModal';
-    this.errorModal.title = 'Error';
-    this.errorModal.message = message;
+    this.errorModal.modalId.set('errorModal');
+    this.errorModal.title.set('Error');
+    this.errorModal.message.set(`${message}`);
     this.errorModal.showModal();
   }
 }

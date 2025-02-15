@@ -1,9 +1,9 @@
-<div class="modal fade" tabindex="-1" role="dialog" [id]="modalId">
+<div class="modal fade" tabindex="-1" role="dialog" [id]="modalId()">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ title }}</h5>
-        @if(showCloseButton){
+        <h5 class="modal-title">{{ title() }}</h5>
+        @if(showCloseButton()){
         <button
           type="button"
           class="btn-close"
@@ -13,12 +13,12 @@
         }
       </div>
       <div class="modal-body">
-        <p>{{ message }}</p>
+        <p>{{ message() }}</p>
       </div>
       <div class="modal-footer">
-        @if(showCloseButton){
+        @if(showCloseButton()){
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          {{ closeButtonText }}
+          {{ closeButtonText() }}
         </button>
         }
         <button
@@ -27,7 +27,7 @@
           data-bs-dismiss="modal"
           (click)="onConfirm()"
         >
-          {{ confirmButtonText }}
+          {{ confirmButtonText() }}
         </button>
       </div>
     </div>

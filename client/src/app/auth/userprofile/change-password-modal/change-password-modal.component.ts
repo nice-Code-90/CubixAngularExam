@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, model, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Modal } from 'bootstrap';
@@ -12,11 +12,11 @@ import { Modal } from 'bootstrap';
   styleUrls: ['./change-password-modal.component.scss'],
 })
 export class ChangePasswordModalComponent {
-  @Input() modalId: string = '';
-  @Input() oldPassword: string = '';
-  @Input() newPassword: string = '';
-  @Input() confirmPassword: string = '';
-  @Input() errorMessage: string = '';
+  modalId = model<string>('');
+  oldPassword = model<string>('');
+  newPassword = model<string>('');
+  confirmPassword = model<string>('');
+  errorMessage = model<string>('');
 
   @Output() passwordChanged = new EventEmitter<{
     oldPassword: string;
@@ -27,7 +27,7 @@ export class ChangePasswordModalComponent {
 
   showModal(): void {
     console.log('showModal called');
-    const modalElement = document.getElementById(this.modalId);
+    const modalElement = document.getElementById(this.modalId());
     if (modalElement) {
       this.modalInstance = new Modal(modalElement);
       this.modalInstance.show();
@@ -41,9 +41,9 @@ export class ChangePasswordModalComponent {
   }
   onSubmit() {
     this.passwordChanged.emit({
-      oldPassword: this.oldPassword,
-      newPassword: this.newPassword,
-      confirmPassword: this.confirmPassword,
+      oldPassword: this.oldPassword(),
+      newPassword: this.newPassword(),
+      confirmPassword: this.confirmPassword(),
     });
   }
 }

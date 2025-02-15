@@ -2,6 +2,7 @@ import {
   Component,
   DestroyRef,
   HostListener,
+  input,
   Input,
   OnInit,
   signal,
@@ -27,7 +28,7 @@ import { LoadingComponent } from '../../shared/loading/loading.component';
   styleUrl: './new-recipe.component.scss',
 })
 export class NewRecipeComponent implements OnInit {
-  @Input({ required: false }) recipe?: Recipe;
+  recipe = input<Recipe | undefined>(undefined);
 
   newRecipe = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),
@@ -125,12 +126,12 @@ export class NewRecipeComponent implements OnInit {
     //For handle any tiny change in form values
   }
   ngOnInit(): void {
-    if (this.recipe) {
+    if (this.recipe()) {
       this.newRecipe.patchValue({
-        title: this.recipe.title,
-        description: this.recipe.description || '',
+        title: this.recipe()!.title,
+        description: this.recipe()!.description || '',
 
-        ingredients: this.recipe.ingredients || [],
+        ingredients: this.recipe()!.ingredients || [],
       });
     }
     this.loadIngredients();
@@ -138,8 +139,8 @@ export class NewRecipeComponent implements OnInit {
 
   //for edit
   loadIngredients() {
-    if (this.recipe?.ingredients) {
-      this.ingredients = [...this.recipe.ingredients];
+    if (this.recipe()?.ingredients) {
+      this.ingredients = [...this.recipe()!.ingredients];
       this.newRecipe.get('ingredients')?.setValue(this.ingredients);
     }
   }
@@ -163,8 +164,8 @@ export class NewRecipeComponent implements OnInit {
 
     const formData = this.createFormData();
 
-    const operation = this.recipe
-      ? this.recipesService.editRecipe(this.recipe.id, formData)
+    const operation = this.recipe()
+      ? this.recipesService.editRecipe(this.recipe()!.id, formData)
       : this.recipesService.createRecipe(formData);
 
     operation

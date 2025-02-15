@@ -56,13 +56,14 @@ export class UserprofileComponent implements OnInit {
 
   deleteAccount() {
     // Modal beállítása
-    this.generalModal.title = 'Confirm Account Deletion';
-    this.generalModal.message =
-      'Are you sure you want to delete your account? This action cannot be undone.';
-    this.generalModal.confirmButtonText = 'Delete Account';
-    this.generalModal.confirmButtonClass = 'btn-danger';
-    this.generalModal.showCloseButton = true;
-    this.generalModal.closeButtonText = 'Kepp my account alive';
+    this.generalModal.title.set('Confirm Account Deletion');
+    this.generalModal.message.set(
+      'Are you sure you want to delete your account? This action cannot be undone.'
+    );
+    this.generalModal.confirmButtonText.set('Delete Account');
+    this.generalModal.confirmButtonClass.set('btn-danger');
+    this.generalModal.showCloseButton.set(true);
+    this.generalModal.closeButtonText.set('Kepp my account alive');
     this.generalModal.confirm.subscribe(() => {
       this.confirmDeleteAccount();
     });
@@ -108,11 +109,13 @@ export class UserprofileComponent implements OnInit {
           this.router.navigate(['/profile']),
             takeUntilDestroyed(this.destroyRef),
             this.changePasswordModal.hideModal();
-          this.generalModal.title = 'Password Changed';
-          this.generalModal.message = 'Password has been changed succesfully';
-          this.generalModal.confirmButtonText = 'OK';
-          this.generalModal.confirmButtonClass = 'btn-primary';
-          this.generalModal.showCloseButton = false;
+          this.generalModal.title.set('Password Changed');
+          this.generalModal.message.set(
+            'Password has been changed succesfully'
+          );
+          this.generalModal.confirmButtonText.set('OK');
+          this.generalModal.confirmButtonClass.set('btn-primary');
+          this.generalModal.showCloseButton.set(false);
           this.generalModal.showModal();
 
           finalize(() => this.isLoading.set(false));
@@ -120,11 +123,11 @@ export class UserprofileComponent implements OnInit {
         catchError((error) => {
           this.changePasswordModal.hideModal();
 
-          this.generalModal.title = 'Error';
-          this.generalModal.message = error.message;
-          this.generalModal.confirmButtonText = 'OK';
-          this.generalModal.confirmButtonClass = 'btn-primary';
-          this.generalModal.showCloseButton = false;
+          this.generalModal.title.set('Error');
+          this.generalModal.message.set(error.message);
+          this.generalModal.confirmButtonText.set('OK');
+          this.generalModal.confirmButtonClass.set('btn-primary');
+          this.generalModal.showCloseButton.set(false);
 
           this.generalModal.showModal();
 
@@ -140,11 +143,11 @@ export class UserprofileComponent implements OnInit {
   }
 
   notImplemented() {
-    this.generalModal.title = 'INFO';
-    this.generalModal.message = 'Function not implemented yet';
-    this.generalModal.confirmButtonText = 'OK';
-    this.generalModal.confirmButtonClass = 'btn-primary';
-    this.generalModal.showCloseButton = false;
+    this.generalModal.title.set('INFO');
+    this.generalModal.message.set('Function not implemented yet');
+    this.generalModal.confirmButtonText.set('OK');
+    this.generalModal.confirmButtonClass.set('btn-primary');
+    this.generalModal.showCloseButton.set(false);
     this.generalModal.showModal();
   }
   onPasswordChanged(event: {
